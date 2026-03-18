@@ -1,0 +1,11 @@
+{
+  "github.copilot.excludeFiles": [
+    "**/.env",
+    "**/.env.*",
+    "**/service-account*.json",
+    "**/gemini-credentials*.json",
+    "**/*-credentials.json",
+    "**/*.pem",
+    "**/*.key"
+  ]
+}
