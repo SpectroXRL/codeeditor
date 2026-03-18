@@ -81,3 +81,51 @@ export async function executeCode(
   const token = await submitCode(sourceCode, languageId, stdin);
   return pollForResult(token);
 }
+
+// Test case types
+export interface TestCase {
+  input: string;
+  expected_output: string;
+}
+
+export interface TestResult {
+  input: string;
+  expected: string;
+  actual: string;
+  passed: boolean;
+}
+
+// Run multiple test cases and return results
+export async function runTestCases(
+  sourceCode: string,
+  languageId: number,
+  testCases: TestCase[]
+): Promise<TestResult[]> {
+  const results: TestResult[] = [];
+
+  for (const testCase of testCases) {
+    try {
+      const result = await executeCode(sourceCode, languageId, testCase.input);
+
+      const actual = (result.stdout || '').trim();
+      const expected = testCase.expected_output.trim();
+      const passed = actual === expected;
+
+      results.push({
+        input: testCase.input,
+        expected: testCase.expected_output,
+        actual: result.stdout || result.stderr || result.compile_output || '',
+        passed,
+      });
+    } catch (error) {
+      results.push({
+        input: testCase.input,
+        expected: testCase.expected_output,
+        actual: error instanceof Error ? error.message : 'Execution failed',
+        passed: false,
+      });
+    }
+  }
+
+  return results;
+}
