@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Content } from "../../types/database";
 import "./InformationPanel.css";
 
@@ -36,10 +38,10 @@ export function InformationPanel({
       <div className="info-header">
         <h2>{content.title}</h2>
       </div>
-      <div className="info-content">
-        {content.information.split("\n").map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
+      <div className="info-content markdown-body">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {content.information}
+        </ReactMarkdown>
       </div>
     </div>
   );
