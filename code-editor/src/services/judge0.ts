@@ -1,88 +1,6 @@
-import type { SubmissionResult, SubmissionResponse } from '../types';
-import { STATUS } from '../types';
+import type { SubmissionResult } from '../types';
 
-const API_URL = 'https://judge0-ce.p.rapidapi.com';
-const API_KEY = import.meta.env.VITE_JUDGE0_API_KEY;
-const API_HOST = 'judge0-ce.p.rapidapi.com';
-
-const headers = {
-  'Content-Type': 'application/json',
-  'X-RapidAPI-Key': API_KEY,
-  'X-RapidAPI-Host': API_HOST,
-};
-
-export async function submitCode(
-  sourceCode: string,
-  languageId: number,
-  stdin: string = ''
-): Promise<string> {
-  const response = await fetch(`${API_URL}/submissions?base64_encoded=false&wait=false`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      source_code: sourceCode,
-      language_id: languageId,
-      stdin: stdin,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Submission failed: ${response.status} - ${error}`);
-  }
-
-  const data: SubmissionResponse = await response.json();
-  return data.token;
-}
-
-export async function getSubmission(token: string): Promise<SubmissionResult> {
-  const response = await fetch(
-    `${API_URL}/submissions/${token}?base64_encoded=false&fields=stdout,stderr,status,compile_output,message,time,memory`,
-    {
-      method: 'GET',
-      headers,
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to get submission: ${response.status} - ${error}`);
-  }
-
-  const data: SubmissionResult = await response.json();
-  return { ...data, token };
-}
-
-export async function pollForResult(
-  token: string,
-  maxAttempts: number = 30,
-  intervalMs: number = 1000
-): Promise<SubmissionResult> {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const result = await getSubmission(token);
-
-    // Check if processing is complete (status > 2 means done)
-    if (result.status.id > STATUS.PROCESSING) {
-      return result;
-    }
-
-    // Wait before next poll
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
-  }
-
-  throw new Error('Execution timed out - max polling attempts reached');
-}
-
-export async function executeCode(
-  sourceCode: string,
-  languageId: number,
-  stdin: string = ''
-): Promise<SubmissionResult> {
-  const token = await submitCode(sourceCode, languageId, stdin);
-  return pollForResult(token);
-}
-
-// Test case types
+// Types for test cases
 export interface TestCase {
   input: string;
   expected_output: string;
@@ -93,6 +11,34 @@ export interface TestResult {
   expected: string;
   actual: string;
   passed: boolean;
+  stderr: string | null;
+  compileOutput: string | null;
+}
+
+// Execute code via serverless function
+export async function executeCode(
+  sourceCode: string,
+  languageId: number,
+  stdin: string = ''
+): Promise<SubmissionResult> {
+  const response = await fetch('/api/execute-code', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sourceCode,
+      languageId,
+      stdin,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Execution failed' }));
+    throw new Error(error.error || `Execution failed: ${response.status}`);
+  }
+
+  return response.json();
 }
 
 // Run multiple test cases and return results
@@ -116,6 +62,8 @@ export async function runTestCases(
         expected: testCase.expected_output,
         actual: result.stdout || result.stderr || result.compile_output || '',
         passed,
+        stderr: result.stderr,
+        compileOutput: result.compile_output,
       });
     } catch (error) {
       results.push({
@@ -123,6 +71,8 @@ export async function runTestCases(
         expected: testCase.expected_output,
         actual: error instanceof Error ? error.message : 'Execution failed',
         passed: false,
+        stderr: error instanceof Error ? error.message : 'Execution failed',
+        compileOutput: null,
       });
     }
   }
