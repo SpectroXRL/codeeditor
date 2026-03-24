@@ -6,6 +6,8 @@ export interface TestResult {
   expected: string;
   actual: string;
   passed: boolean;
+  stderr: string | null;
+  compileOutput: string | null;
 }
 
 interface TestCasesPanelProps {

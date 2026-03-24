@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/execute-code.ts": {
+      "maxDuration": 60
+    },
+    "api/explain-error.ts": {
+      "maxDuration": 30
+    }
+  }
+}
