@@ -9,6 +9,7 @@ import {
   type TestResult,
 } from "../components/learning/TestCasesPanel";
 import { ErrorExplanationPanel } from "../components/learning/ErrorExplanationPanel";
+import { ChallengeCard } from "../components/learning/ChallengeCard";
 import { CodeEditor } from "../components/CodeEditor";
 import { useAuth } from "../context/useAuth";
 import { useRateLimit } from "../hooks/useRateLimit";
@@ -342,6 +343,16 @@ export function SubjectPage() {
               onSelect={handleSubTopicChange}
               disabled={isRunning}
             />
+            {user && selectedTopic && (
+              <div className="challenge-card-wrapper">
+                <ChallengeCard
+                  type="mini_boss"
+                  topicId={selectedTopic.id}
+                  userId={user.id}
+                  topicName={selectedTopic.name}
+                />
+              </div>
+            )}
           </div>
           <div className="toolbar-right">
             <button className="theme-btn" onClick={toggleTheme}>
