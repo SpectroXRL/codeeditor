@@ -19,8 +19,8 @@ import {
   getSubTopicsByTopic,
   getContentBySubTopic,
 } from "../services/content";
-import { getUserProgress, saveProgress } from "../services/progress";
 import { runTestCases } from "../services/judge0";
+import { useSavedCode, useProgressActions } from "../stores/progressSelectors";
 import { generateErrorExplanation } from "../services/openai";
 import type { Topic, SubTopic, Content } from "../types/database";
 import { LANGUAGES } from "../types";
@@ -72,6 +72,17 @@ export function SubjectPage() {
 
   // Auto-save debounce ref
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Progress store
+  const savedCode = useSavedCode(selectedSubTopic?.id);
+  const { markComplete, saveCode: saveCodeToStore } = useProgressActions();
+
+  // Restore saved code from store when it becomes available
+  useEffect(() => {
+    if (savedCode && content) {
+      setCode(savedCode);
+    }
+  }, [savedCode, content]);
 
   // Load subject and initial data
   useEffect(() => {
@@ -142,19 +153,9 @@ export function SubjectPage() {
         const contentData = await getContentBySubTopic(currentSubTopic.id);
         setContent(contentData);
 
-        // Set initial code
+        // Set initial code - starter code is set here, saved code is handled via effect below
         if (contentData) {
-          // Try to load saved progress if user is logged in
-          if (user) {
-            const progress = await getUserProgress(user.id, currentSubTopic.id);
-            if (progress?.saved_code) {
-              setCode(progress.saved_code);
-            } else {
-              setCode(contentData.starter_code);
-            }
-          } else {
-            setCode(contentData.starter_code);
-          }
+          setCode(contentData.starter_code);
         }
       } catch (error) {
         console.error("Error loading content:", error);
@@ -196,21 +197,12 @@ export function SubjectPage() {
           clearTimeout(saveTimeoutRef.current);
         }
 
-        saveTimeoutRef.current = setTimeout(async () => {
-          try {
-            await saveProgress(
-              user.id,
-              selectedSubTopic.id,
-              newCode,
-              "in_progress",
-            );
-          } catch (error) {
-            console.error("Error auto-saving:", error);
-          }
+        saveTimeoutRef.current = setTimeout(() => {
+          saveCodeToStore(user.id, selectedSubTopic.id, newCode);
         }, 2000); // Debounce for 2 seconds
       }
     },
-    [user, selectedSubTopic],
+    [user, selectedSubTopic, saveCodeToStore],
   );
 
   // Run tests
@@ -246,7 +238,7 @@ export function SubjectPage() {
 
       // Update progress if all tests pass
       if (allTestsPassed && user && selectedSubTopic) {
-        await saveProgress(user.id, selectedSubTopic.id, code, "completed");
+        markComplete(user.id, selectedSubTopic.id, code);
       }
 
       // Trigger AI explanation if tests failed and user is authenticated
@@ -350,6 +342,7 @@ export function SubjectPage() {
                   topicId={selectedTopic.id}
                   userId={user.id}
                   topicName={selectedTopic.name}
+                  subtopicIds={subtopics.map((s) => s.id)}
                 />
               </div>
             )}

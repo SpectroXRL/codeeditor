@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import {
   getChallengeForTopic,
   getChallengeForSubject,
-  isTopicChallengeUnlocked,
   isSubjectChallengeUnlocked,
   getUserBestAttempt,
-  getTopicProgress,
 } from "../../services/challenges";
+import {
+  useTopicProgress,
+  useIsTopicComplete,
+} from "../../stores/progressSelectors";
 import type { Challenge, ChallengeAttempt } from "../../types/database";
 import "./ChallengeCard.css";
 
@@ -18,6 +20,7 @@ interface ChallengeCardProps {
   userId: string;
   topicName?: string;
   subjectName?: string;
+  subtopicIds?: string[]; // For reactive progress updates
 }
 
 export function ChallengeCard({
@@ -27,17 +30,24 @@ export function ChallengeCard({
   userId,
   topicName,
   subjectName,
+  subtopicIds = [],
 }: ChallengeCardProps) {
   const navigate = useNavigate();
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const [bestAttempt, setBestAttempt] = useState<ChallengeAttempt | null>(null);
-  const [progress, setProgress] = useState<{
-    completed: number;
-    total: number;
-  } | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // For final_boss, we track unlock status from DB
+  const [finalBossUnlocked, setFinalBossUnlocked] = useState(false);
+
+  // Use store selectors for mini_boss progress (reactive updates)
+  const storeProgress = useTopicProgress(subtopicIds);
+  const storeIsComplete = useIsTopicComplete(subtopicIds);
+
+  // Determine progress and unlock based on type
+  const progress = type === "mini_boss" ? storeProgress : null;
+  const isUnlocked = type === "mini_boss" ? storeIsComplete : finalBossUnlocked;
 
   useEffect(() => {
     async function loadChallengeData() {
@@ -48,20 +58,13 @@ export function ChallengeCard({
         let challengeData: Challenge | null = null;
         if (type === "mini_boss" && topicId) {
           challengeData = await getChallengeForTopic(topicId);
-
-          // Check unlock status
-          const unlocked = await isTopicChallengeUnlocked(userId, topicId);
-          setIsUnlocked(unlocked);
-
-          // Get progress
-          const prog = await getTopicProgress(userId, topicId);
-          setProgress(prog);
+          // Progress and unlock come from store selectors (reactive)
         } else if (type === "final_boss" && subjectId) {
           challengeData = await getChallengeForSubject(subjectId);
 
-          // Check unlock status
+          // Check unlock status from DB for final_boss
           const unlocked = await isSubjectChallengeUnlocked(userId, subjectId);
-          setIsUnlocked(unlocked);
+          setFinalBossUnlocked(unlocked);
         }
 
         setChallenge(challengeData);
