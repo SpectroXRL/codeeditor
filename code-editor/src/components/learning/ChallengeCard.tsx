@@ -7,7 +7,7 @@ import {
   getUserBestAttempt,
 } from "../../services/challenges";
 import {
-  useTopicProgress,
+  useCompletedCount,
   useIsTopicComplete,
 } from "../../stores/progressSelectors";
 import type { Challenge, ChallengeAttempt } from "../../types/database";
@@ -42,11 +42,14 @@ export function ChallengeCard({
   const [finalBossUnlocked, setFinalBossUnlocked] = useState(false);
 
   // Use store selectors for mini_boss progress (reactive updates)
-  const storeProgress = useTopicProgress(subtopicIds);
+  const completedCount = useCompletedCount(subtopicIds);
   const storeIsComplete = useIsTopicComplete(subtopicIds);
 
   // Determine progress and unlock based on type
-  const progress = type === "mini_boss" ? storeProgress : null;
+  // Build progress object locally from primitives
+  const progress = type === "mini_boss" && subtopicIds.length > 0
+    ? { completed: completedCount, total: subtopicIds.length }
+    : null;
   const isUnlocked = type === "mini_boss" ? storeIsComplete : finalBossUnlocked;
 
   useEffect(() => {

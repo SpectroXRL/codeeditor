@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/layout/PageLayout";
 import { TopicDropdown } from "../components/learning/TopicDropdown";
@@ -76,6 +76,9 @@ export function SubjectPage() {
   // Progress store
   const savedCode = useSavedCode(selectedSubTopic?.id);
   const { markComplete, saveCode: saveCodeToStore } = useProgressActions();
+
+  // Memoize subtopicIds to prevent new array reference on every render
+  const subtopicIds = useMemo(() => subtopics.map((s) => s.id), [subtopics]);
 
   // Restore saved code from store when it becomes available
   useEffect(() => {
@@ -342,7 +345,7 @@ export function SubjectPage() {
                   topicId={selectedTopic.id}
                   userId={user.id}
                   topicName={selectedTopic.name}
-                  subtopicIds={subtopics.map((s) => s.id)}
+                  subtopicIds={subtopicIds}
                 />
               </div>
             )}
