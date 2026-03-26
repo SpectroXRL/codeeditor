@@ -26,21 +26,11 @@ export function useSavedCode(subtopicId: string | undefined) {
 // Topic-Level Progress
 // ============================================
 
-export function useTopicProgress(subtopicIds: string[]) {
-  return useProgressStore((state) => {
-    if (subtopicIds.length === 0) {
-      return { completed: 0, total: 0 };
-    }
-
-    const completed = subtopicIds.filter(
-      (id) => state.progress[id]?.status === 'completed'
-    ).length;
-
-    return {
-      completed,
-      total: subtopicIds.length,
-    };
-  });
+// Returns primitive (number) to avoid reference equality issues
+export function useCompletedCount(subtopicIds: string[]) {
+  return useProgressStore((state) =>
+    subtopicIds.filter((id) => state.progress[id]?.status === 'completed').length
+  );
 }
 
 export function useIsTopicComplete(subtopicIds: string[]) {
