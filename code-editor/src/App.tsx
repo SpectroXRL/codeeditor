@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastContainer } from "./components/Toast";
 import { HomePage } from "./pages/HomePage";
 import { SubjectPage } from "./pages/SubjectPage";
 import { ChallengePage } from "./pages/ChallengePage";
@@ -19,6 +20,7 @@ function App() {
             element={<ChallengePage />}
           />
         </Routes>
+        <ToastContainer />
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,12 +1,17 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { supabase } from "../services/supabase";
 import { AuthContext } from "./AuthContextDef";
+import { useProgressStore } from "../stores/progressStore";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Track if we've hydrated for current user to avoid re-hydrating
+  const hydratedUserRef = useRef<string | null>(null);
+  const { hydrate, clear } = useProgressStore();
 
   useEffect(() => {
     // Get initial session
@@ -14,6 +19,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Hydrate progress in background (non-blocking)
+      if (session?.user && hydratedUserRef.current !== session.user.id) {
+        hydratedUserRef.current = session.user.id;
+        hydrate(session.user.id);
+      }
     });
 
     // Listen for auth changes
@@ -23,10 +34,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Handle auth state changes
+      if (session?.user) {
+        // Hydrate progress for new user (non-blocking)
+        if (hydratedUserRef.current !== session.user.id) {
+          hydratedUserRef.current = session.user.id;
+          hydrate(session.user.id);
+        }
+      } else {
+        // Clear progress on sign out
+        hydratedUserRef.current = null;
+        clear();
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [hydrate, clear]);
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
