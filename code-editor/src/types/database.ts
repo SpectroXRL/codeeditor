@@ -48,6 +48,7 @@ export interface UserProgress {
   status: 'not_started' | 'in_progress' | 'completed';
   saved_code: string | null;
   last_accessed_at: string;
+  assistance_count?: number;
 }
 
 // Extended types with relations
@@ -95,6 +96,20 @@ export interface ChallengeAttempt {
   hint_penalty: number | null;
   final_score: number | null;
   status: 'in_progress' | 'completed' | 'abandoned';
+  created_at: string;
+}
+
+// AI Tutor Types
+export type AssistanceTier = 'tip' | 'question' | 'hint' | 'explanation';
+
+export interface AIAssistanceLog {
+  id: string;
+  user_id: string;
+  subtopic_id: string;
+  assistance_tier: AssistanceTier;
+  issue_type: string | null;
+  code_snippet: string | null;
+  response_summary: string | null;
   created_at: string;
 }
 

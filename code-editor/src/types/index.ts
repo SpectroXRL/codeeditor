@@ -68,3 +68,20 @@ export const STATUS = {
   INTERNAL_ERROR: 13,
   EXEC_FORMAT_ERROR: 14,
 };
+
+// AI Tutor Types
+export type { AssistanceTier } from './database';
+
+export interface DetectedIssue {
+  type: 'syntax' | 'logic' | 'incomplete' | 'style';
+  severity: 'info' | 'warning';
+  message: string;
+  line?: number;
+  suggestedTier: import('./database').AssistanceTier;
+}
+
+export interface TutorResponse {
+  response: string;
+  tier: import('./database').AssistanceTier;
+  followUpAvailable: boolean;
+}

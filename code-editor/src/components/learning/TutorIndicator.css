@@ -1,0 +1,134 @@
+.tutor-indicator-container {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
+.tutor-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tutor-indicator:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+}
+
+.tutor-indicator:active {
+  transform: scale(1.05);
+}
+
+/* Pulse animation for new tips */
+.tutor-indicator--new {
+  animation: tutor-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tutor-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.7), 0 0 0 8px rgba(16, 185, 129, 0.1);
+  }
+}
+
+.tutor-indicator__icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.tutor-indicator__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+/* Tooltip */
+.tutor-indicator__tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-width: 200px;
+  max-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: tooltip-fade-in 0.2s ease;
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tutor-indicator__tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 18px;
+  width: 12px;
+  height: 12px;
+  background: #1f2937;
+  border-right: 1px solid #374151;
+  border-bottom: 1px solid #374151;
+  transform: rotate(45deg);
+}
+
+.tooltip__message {
+  display: block;
+  color: #f3f4f6;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.tooltip__cta {
+  display: block;
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .tutor-indicator__tooltip {
+    background: white;
+    border-color: #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .tutor-indicator__tooltip::after {
+    background: white;
+    border-color: #e5e7eb;
+  }
+
+  .tooltip__message {
+    color: #1f2937;
+  }
+}
