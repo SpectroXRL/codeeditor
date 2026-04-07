@@ -108,6 +108,7 @@
 .code-area {
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
 .code-area .code-editor {

@@ -47,9 +47,10 @@ export function ChallengeCard({
 
   // Determine progress and unlock based on type
   // Build progress object locally from primitives
-  const progress = type === "mini_boss" && subtopicIds.length > 0
-    ? { completed: completedCount, total: subtopicIds.length }
-    : null;
+  const progress =
+    type === "mini_boss" && subtopicIds.length > 0
+      ? { completed: completedCount, total: subtopicIds.length }
+      : null;
   const isUnlocked = type === "mini_boss" ? storeIsComplete : finalBossUnlocked;
 
   useEffect(() => {

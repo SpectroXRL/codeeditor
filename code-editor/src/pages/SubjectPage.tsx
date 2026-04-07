@@ -9,10 +9,14 @@ import {
   type TestResult,
 } from "../components/learning/TestCasesPanel";
 import { ErrorExplanationPanel } from "../components/learning/ErrorExplanationPanel";
+import { TutorIndicator } from "../components/learning/TutorIndicator";
+import { TutorPanel } from "../components/learning/TutorPanel";
 import { ChallengeCard } from "../components/learning/ChallengeCard";
 import { CodeEditor } from "../components/CodeEditor";
 import { useAuth } from "../context/useAuth";
 import { useRateLimit } from "../hooks/useRateLimit";
+import { useTutorRateLimit } from "../hooks/useTutorRateLimit";
+import { useCodeAnalysis } from "../hooks/useCodeAnalysis";
 import {
   getSubjectById,
   getTopicsBySubject,
@@ -22,6 +26,10 @@ import {
 import { runTestCases } from "../services/judge0";
 import { useSavedCode, useProgressActions } from "../stores/progressSelectors";
 import { generateErrorExplanation } from "../services/openai";
+import {
+  logAssistance,
+  incrementAssistanceCount,
+} from "../services/assistance";
 import type { Topic, SubTopic, Content } from "../types/database";
 import { LANGUAGES } from "../types";
 import "./SubjectPage.css";
@@ -66,6 +74,19 @@ export function SubjectPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
+  // AI Tutor state
+  const [tutorPanelVisible, setTutorPanelVisible] = useState(false);
+  const [isNewTip, setIsNewTip] = useState(false);
+
+  // Rate limiting for AI tutor (separate from error explanations)
+  const {
+    canCall: canCallTutor,
+    callsUsed: tutorCallsUsed,
+    resetTime: tutorResetTime,
+    recordCall: recordTutorCall,
+    maxCalls: tutorMaxCalls,
+  } = useTutorRateLimit(user?.id || null);
+
   // Loading states
   const [loadingSubject, setLoadingSubject] = useState(true);
   const [loadingContent, setLoadingContent] = useState(false);
@@ -79,6 +100,33 @@ export function SubjectPage() {
 
   // Memoize subtopicIds to prevent new array reference on every render
   const subtopicIds = useMemo(() => subtopics.map((s) => s.id), [subtopics]);
+
+  // Code analysis for tutor hints
+  const {
+    issues: detectedIssues,
+    hasTip,
+    primaryIssue,
+  } = useCodeAnalysis({
+    code,
+    languageId: content?.language_id || 71,
+    starterCode: content?.starter_code || "",
+    enabled: !!content && !!user,
+  });
+
+  // Track when new tips are detected
+  const prevHasTipRef = useRef(false);
+  useEffect(() => {
+    if (hasTip && !prevHasTipRef.current) {
+      setIsNewTip(true);
+    }
+    prevHasTipRef.current = hasTip;
+  }, [hasTip]);
+
+  // Reset tutor state when lesson changes
+  useEffect(() => {
+    setTutorPanelVisible(false);
+    setIsNewTip(false);
+  }, [selectedSubTopic?.id]);
 
   // Restore saved code from store when it becomes available
   useEffect(() => {
@@ -303,6 +351,37 @@ export function SubjectPage() {
     setTheme((prev) => (prev === "vs-dark" ? "light" : "vs-dark"));
   };
 
+  // Handle tutor indicator click
+  const handleTutorIndicatorClick = useCallback(() => {
+    setTutorPanelVisible(true);
+    setIsNewTip(false);
+  }, []);
+
+  // Handle tutor assistance used
+  const handleTutorAssistanceUsed = useCallback(() => {
+    recordTutorCall();
+
+    // Log to database if user is authenticated
+    if (user && selectedSubTopic && primaryIssue) {
+      logAssistance({
+        userId: user.id,
+        subtopicId: selectedSubTopic.id,
+        assistanceTier: primaryIssue.suggestedTier,
+        issueType: primaryIssue.type,
+        codeSnippet: code.slice(0, 500), // Truncate for storage
+      }).catch(console.error);
+
+      incrementAssistanceCount(user.id, selectedSubTopic.id).catch(
+        console.error,
+      );
+    }
+  }, [user, selectedSubTopic, primaryIssue, code, recordTutorCall]);
+
+  // Close tutor panel
+  const handleCloseTutorPanel = useCallback(() => {
+    setTutorPanelVisible(false);
+  }, []);
+
   // Get language for Monaco
   const getMonacoLanguage = () => {
     if (!content) return LANGUAGES[0];
@@ -378,7 +457,27 @@ export function SubjectPage() {
                 onChange={handleCodeChange}
                 disabled={isRunning}
               />
+              <TutorIndicator
+                hasTip={hasTip}
+                primaryIssue={primaryIssue}
+                onClick={handleTutorIndicatorClick}
+                isNew={isNewTip}
+              />
             </div>
+            <TutorPanel
+              content={content}
+              code={code}
+              language={getMonacoLanguage().name}
+              detectedIssues={detectedIssues}
+              isAuthenticated={!!user}
+              canCall={canCallTutor}
+              callsUsed={tutorCallsUsed}
+              maxCalls={tutorMaxCalls}
+              resetTime={tutorResetTime}
+              onAssistanceUsed={handleTutorAssistanceUsed}
+              isVisible={tutorPanelVisible}
+              onClose={handleCloseTutorPanel}
+            />
             <TestCasesPanel
               visibleTests={content?.test_cases_visible || []}
               visibleResults={testResults}
