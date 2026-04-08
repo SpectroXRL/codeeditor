@@ -8,15 +8,12 @@ import {
   TestCasesPanel,
   type TestResult,
 } from "../components/learning/TestCasesPanel";
-import { ErrorExplanationPanel } from "../components/learning/ErrorExplanationPanel";
-import { TutorIndicator } from "../components/learning/TutorIndicator";
-import { TutorPanel } from "../components/learning/TutorPanel";
+import { ChatDrawer } from "../components/learning/ChatDrawer";
+import { HintsPanel } from "../components/learning/HintsPanel";
 import { ChallengeCard } from "../components/learning/ChallengeCard";
 import { CodeEditor } from "../components/CodeEditor";
 import { useAuth } from "../context/useAuth";
-import { useRateLimit } from "../hooks/useRateLimit";
-import { useTutorRateLimit } from "../hooks/useTutorRateLimit";
-import { useCodeAnalysis } from "../hooks/useCodeAnalysis";
+import { useAIChatLimit } from "../hooks/useAIChatLimit";
 import {
   getSubjectById,
   getTopicsBySubject,
@@ -25,11 +22,6 @@ import {
 } from "../services/content";
 import { runTestCases } from "../services/judge0";
 import { useSavedCode, useProgressActions } from "../stores/progressSelectors";
-import { generateErrorExplanation } from "../services/openai";
-import {
-  logAssistance,
-  incrementAssistanceCount,
-} from "../services/assistance";
 import type { Topic, SubTopic, Content } from "../types/database";
 import { LANGUAGES } from "../types";
 import "./SubjectPage.css";
@@ -39,14 +31,14 @@ export function SubjectPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Rate limiting for AI explanations
+  // Rate limiting for AI chat
   const {
     canCall: canCallAI,
     callsUsed: aiCallsUsed,
     resetTime: aiResetTime,
     recordCall: recordAICall,
     maxCalls: aiMaxCalls,
-  } = useRateLimit(user?.id || null);
+  } = useAIChatLimit(user?.id || null);
 
   // Data state
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -69,23 +61,11 @@ export function SubjectPage() {
   const [hiddenPassed, setHiddenPassed] = useState(0);
   const [allPassed, setAllPassed] = useState(false);
 
-  // AI Explanation state
-  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+  // Chat drawer state
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
 
-  // AI Tutor state
-  const [tutorPanelVisible, setTutorPanelVisible] = useState(false);
-  const [isNewTip, setIsNewTip] = useState(false);
-
-  // Rate limiting for AI tutor (separate from error explanations)
-  const {
-    canCall: canCallTutor,
-    callsUsed: tutorCallsUsed,
-    resetTime: tutorResetTime,
-    recordCall: recordTutorCall,
-    maxCalls: tutorMaxCalls,
-  } = useTutorRateLimit(user?.id || null);
+  // Hints state
+  const [hintsRevealed, setHintsRevealed] = useState(0);
 
   // Loading states
   const [loadingSubject, setLoadingSubject] = useState(true);
@@ -101,31 +81,10 @@ export function SubjectPage() {
   // Memoize subtopicIds to prevent new array reference on every render
   const subtopicIds = useMemo(() => subtopics.map((s) => s.id), [subtopics]);
 
-  // Code analysis for tutor hints
-  const {
-    issues: detectedIssues,
-    hasTip,
-    primaryIssue,
-  } = useCodeAnalysis({
-    code,
-    languageId: content?.language_id || 71,
-    starterCode: content?.starter_code || "",
-    enabled: !!content && !!user,
-  });
-
-  // Track when new tips are detected
-  const prevHasTipRef = useRef(false);
+  // Reset hints when lesson changes
   useEffect(() => {
-    if (hasTip && !prevHasTipRef.current) {
-      setIsNewTip(true);
-    }
-    prevHasTipRef.current = hasTip;
-  }, [hasTip]);
-
-  // Reset tutor state when lesson changes
-  useEffect(() => {
-    setTutorPanelVisible(false);
-    setIsNewTip(false);
+    setHintsRevealed(0);
+    setChatDrawerOpen(false);
   }, [selectedSubTopic?.id]);
 
   // Restore saved code from store when it becomes available
@@ -195,10 +154,6 @@ export function SubjectPage() {
       setTestResults([]);
       setHiddenPassed(0);
       setAllPassed(false);
-      // Clear AI state when changing lessons
-      setAiExplanation(null);
-      setAiLoading(false);
-      setAiError(null);
 
       try {
         const contentData = await getContentBySubTopic(currentSubTopic.id);
@@ -264,9 +219,6 @@ export function SubjectPage() {
     setTestResults([]);
     setHiddenPassed(0);
     setAllPassed(false);
-    // Clear previous AI explanation
-    setAiExplanation(null);
-    setAiError(null);
 
     try {
       const allTests = [
@@ -291,58 +243,10 @@ export function SubjectPage() {
       if (allTestsPassed && user && selectedSubTopic) {
         markComplete(user.id, selectedSubTopic.id, code);
       }
-
-      // Trigger AI explanation if tests failed and user is authenticated
-      if (!allTestsPassed && user && canCallAI) {
-        const firstFailedTest = results.find((r) => !r.passed);
-        if (firstFailedTest) {
-          fetchAIExplanation(firstFailedTest);
-        }
-      }
     } catch (error) {
       console.error("Error running tests:", error);
     } finally {
       setIsRunning(false);
-    }
-  };
-
-  // Fetch AI explanation for a failed test
-  const fetchAIExplanation = async (failedTest: TestResult) => {
-    if (!content) return;
-
-    setAiLoading(true);
-    setAiError(null);
-
-    try {
-      const language = LANGUAGES.find((l) => l.id === content.language_id);
-      const explanation = await generateErrorExplanation({
-        code,
-        expected: failedTest.expected,
-        actual: failedTest.actual,
-        stderr: failedTest.stderr,
-        compileOutput: failedTest.compileOutput,
-        language: language?.name || "Unknown",
-      });
-
-      recordAICall();
-      setAiExplanation(explanation);
-    } catch (error) {
-      console.error("Error generating AI explanation:", error);
-      setAiError(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate explanation",
-      );
-    } finally {
-      setAiLoading(false);
-    }
-  };
-
-  // Retry AI explanation
-  const handleRetryExplanation = () => {
-    const firstFailedTest = testResults.find((r) => !r.passed);
-    if (firstFailedTest && canCallAI) {
-      fetchAIExplanation(firstFailedTest);
     }
   };
 
@@ -351,35 +255,19 @@ export function SubjectPage() {
     setTheme((prev) => (prev === "vs-dark" ? "light" : "vs-dark"));
   };
 
-  // Handle tutor indicator click
-  const handleTutorIndicatorClick = useCallback(() => {
-    setTutorPanelVisible(true);
-    setIsNewTip(false);
+  // Toggle chat drawer
+  const handleToggleChat = useCallback(() => {
+    setChatDrawerOpen((prev) => !prev);
   }, []);
 
-  // Handle tutor assistance used
-  const handleTutorAssistanceUsed = useCallback(() => {
-    recordTutorCall();
+  // Handle AI chat message sent (for rate limiting)
+  const handleChatMessageSent = useCallback(() => {
+    recordAICall();
+  }, [recordAICall]);
 
-    // Log to database if user is authenticated
-    if (user && selectedSubTopic && primaryIssue) {
-      logAssistance({
-        userId: user.id,
-        subtopicId: selectedSubTopic.id,
-        assistanceTier: primaryIssue.suggestedTier,
-        issueType: primaryIssue.type,
-        codeSnippet: code.slice(0, 500), // Truncate for storage
-      }).catch(console.error);
-
-      incrementAssistanceCount(user.id, selectedSubTopic.id).catch(
-        console.error,
-      );
-    }
-  }, [user, selectedSubTopic, primaryIssue, code, recordTutorCall]);
-
-  // Close tutor panel
-  const handleCloseTutorPanel = useCallback(() => {
-    setTutorPanelVisible(false);
+  // Reveal next hint
+  const handleRevealNextHint = useCallback(() => {
+    setHintsRevealed((prev) => prev + 1);
   }, []);
 
   // Get language for Monaco
@@ -457,26 +345,26 @@ export function SubjectPage() {
                 onChange={handleCodeChange}
                 disabled={isRunning}
               />
-              <TutorIndicator
-                hasTip={hasTip}
-                primaryIssue={primaryIssue}
-                onClick={handleTutorIndicatorClick}
-                isNew={isNewTip}
+              <ChatDrawer
+                isOpen={chatDrawerOpen}
+                onToggle={handleToggleChat}
+                code={code}
+                lessonInfo={content?.information || ""}
+                lessonTitle={content?.title || ""}
+                testResults={testResults}
+                isAuthenticated={!!user}
+                canCall={canCallAI}
+                callsUsed={aiCallsUsed}
+                maxCalls={aiMaxCalls}
+                resetTime={aiResetTime}
+                onMessageSent={handleChatMessageSent}
               />
             </div>
-            <TutorPanel
-              content={content}
-              code={code}
-              language={getMonacoLanguage().name}
-              detectedIssues={detectedIssues}
+            <HintsPanel
+              hints={content?.hints || []}
+              hintsRevealed={hintsRevealed}
+              onRevealNext={handleRevealNextHint}
               isAuthenticated={!!user}
-              canCall={canCallTutor}
-              callsUsed={tutorCallsUsed}
-              maxCalls={tutorMaxCalls}
-              resetTime={tutorResetTime}
-              onAssistanceUsed={handleTutorAssistanceUsed}
-              isVisible={tutorPanelVisible}
-              onClose={handleCloseTutorPanel}
             />
             <TestCasesPanel
               visibleTests={content?.test_cases_visible || []}
@@ -485,18 +373,6 @@ export function SubjectPage() {
               hiddenTotal={content?.test_cases_hidden?.length || 0}
               isRunning={isRunning}
               allPassed={allPassed}
-            />
-            <ErrorExplanationPanel
-              explanation={aiExplanation}
-              isLoading={aiLoading}
-              error={aiError}
-              isAuthenticated={!!user}
-              canCall={canCallAI}
-              callsUsed={aiCallsUsed}
-              maxCalls={aiMaxCalls}
-              resetTime={aiResetTime}
-              onRetry={handleRetryExplanation}
-              hasFailedTests={testResults.some((r) => !r.passed)}
             />
           </div>
         </div>
