@@ -7,6 +7,7 @@ import {
   type TestResult,
 } from "../components/learning/TestCasesPanel";
 import { useAuth } from "../context/useAuth";
+import { useTheme } from "../context/ThemeContext";
 import { useChallenge, formatTime } from "../hooks/useChallenge";
 import {
   getChallengeById,
@@ -50,6 +51,7 @@ export function ChallengePage() {
   }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { monacoTheme } = useTheme();
 
   // Challenge data
   const [challenge, setChallenge] = useState<Challenge | null>(null);
@@ -435,7 +437,7 @@ export function ChallengePage() {
                 code={code}
                 onChange={setCode}
                 language={language || LANGUAGES[0]}
-                theme="vs-dark"
+                theme={monacoTheme}
               />
 
               <div className="challenge-actions">

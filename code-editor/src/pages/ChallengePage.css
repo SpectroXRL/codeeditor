@@ -1,7 +1,7 @@
 .challenge-page {
   min-height: calc(100vh - 60px);
   padding: 20px;
-  background: var(--bg-secondary, #1a1a2e);
+  background: var(--bg-secondary);
 }
 
 /* Loading and Error States */
@@ -21,14 +21,14 @@
 .challenge-error h2,
 .challenge-locked h2,
 .challenge-cooldown h2 {
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .challenge-error p,
 .challenge-locked p,
 .challenge-cooldown p {
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -43,7 +43,7 @@
 .challenge-cooldown button {
   margin-top: 16px;
   padding: 12px 24px;
-  background: var(--accent, #6366f1);
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 8px;
@@ -55,7 +55,7 @@
 .challenge-error button:hover,
 .challenge-locked button:hover,
 .challenge-cooldown button:hover {
-  background: var(--accent-hover, #4f46e5);
+  background: var(--accent-hover);
 }
 
 /* Challenge Header */
@@ -64,7 +64,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  background: var(--bg-tertiary, #16213e);
+  background: var(--bg-tertiary);
   border-radius: 12px;
   margin-bottom: 20px;
 }
@@ -95,7 +95,7 @@
 .challenge-header h1 {
   margin: 0;
   font-size: 24px;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .challenge-status {
@@ -109,7 +109,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: var(--bg-primary, #0f0f23);
+  background: var(--bg-primary);
   border-radius: 8px;
   font-family: 'JetBrains Mono', monospace;
 }
@@ -121,28 +121,28 @@
 .timer-value {
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .timer-limit {
   font-size: 14px;
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
 }
 
 .timer.overtime .timer-value {
-  color: #ef4444;
+  color: var(--error);
 }
 
 .overtime-label {
   font-size: 12px;
-  color: #ef4444;
+  color: var(--error);
 }
 
 .hints-status {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
 }
 
 .hint-btn {
@@ -194,17 +194,17 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 40px;
-  background: var(--bg-tertiary, #16213e);
+  background: var(--bg-tertiary);
   border-radius: 16px;
 }
 
 .challenge-description h2 {
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
   margin-top: 0;
 }
 
 .challenge-description p {
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
   font-size: 16px;
   line-height: 1.6;
 }
@@ -212,13 +212,13 @@
 .challenge-rules {
   margin-top: 24px;
   padding: 20px;
-  background: var(--bg-primary, #0f0f23);
+  background: var(--bg-primary);
   border-radius: 8px;
 }
 
 .challenge-rules h3 {
   margin-top: 0;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .challenge-rules ul {
@@ -229,8 +229,8 @@
 
 .challenge-rules li {
   padding: 8px 0;
-  color: var(--text-secondary, #888);
-  border-bottom: 1px solid var(--border, #333);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .challenge-rules li:last-child {
@@ -244,7 +244,7 @@
   padding: 16px 32px;
   font-size: 18px;
   font-weight: 600;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
   border: none;
   border-radius: 12px;
@@ -273,18 +273,18 @@
 }
 
 .problem-panel {
-  background: var(--bg-tertiary, #16213e);
+  background: var(--bg-tertiary);
   border-radius: 12px;
   padding: 20px;
 }
 
 .problem-panel h3 {
   margin-top: 0;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .problem-panel p {
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -302,7 +302,7 @@
 .run-tests-btn {
   width: 100%;
   padding: 12px;
-  background: var(--accent, #6366f1);
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 8px;
@@ -313,7 +313,7 @@
 }
 
 .run-tests-btn:hover:not(:disabled) {
-  background: var(--accent-hover, #4f46e5);
+  background: var(--accent-hover);
 }
 
 .run-tests-btn:disabled {
@@ -330,8 +330,8 @@
 .abandon-btn {
   padding: 12px 24px;
   background: transparent;
-  color: #ef4444;
-  border: 2px solid #ef4444;
+  color: var(--error);
+  border: 2px solid var(--error);
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
@@ -340,7 +340,7 @@
 }
 
 .abandon-btn:hover:not(:disabled) {
-  background: #ef4444;
+  background: var(--error);
   color: white;
 }
 
@@ -352,7 +352,7 @@
 .submit-btn {
   flex: 1;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, var(--success), #059669);
   color: white;
   border: none;
   border-radius: 8px;
@@ -391,7 +391,7 @@
 }
 
 .results-modal {
-  background: var(--bg-tertiary, #16213e);
+  background: var(--bg-tertiary);
   border-radius: 16px;
   padding: 32px;
   min-width: 400px;
@@ -413,12 +413,12 @@
 .results-modal h2 {
   margin-top: 0;
   text-align: center;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
   font-size: 24px;
 }
 
 .score-breakdown {
-  background: var(--bg-primary, #0f0f23);
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 20px;
   margin: 24px 0;
@@ -428,8 +428,8 @@
   display: flex;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border, #333);
-  color: var(--text-secondary, #888);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
 }
 
 .score-row:last-child {
@@ -437,20 +437,20 @@
 }
 
 .score-row.bonus span:last-child {
-  color: #10b981;
+  color: var(--success);
 }
 
 .score-row.penalty span:last-child {
-  color: #ef4444;
+  color: var(--error);
 }
 
 .score-row.total {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
   padding-top: 16px;
   margin-top: 8px;
-  border-top: 2px solid var(--border, #333);
+  border-top: 2px solid var(--border);
 }
 
 .results-actions {
@@ -470,23 +470,23 @@
 
 .results-actions button:first-child {
   background: transparent;
-  color: var(--accent, #6366f1);
-  border: 2px solid var(--accent, #6366f1);
+  color: var(--accent);
+  border: 2px solid var(--accent);
 }
 
 .results-actions button:first-child:hover {
-  background: var(--accent, #6366f1);
+  background: var(--accent);
   color: white;
 }
 
 .results-actions button:last-child {
-  background: var(--accent, #6366f1);
+  background: var(--accent);
   color: white;
   border: none;
 }
 
 .results-actions button:last-child:hover {
-  background: var(--accent-hover, #4f46e5);
+  background: var(--accent-hover);
 }
 
 /* Error Toast */
@@ -495,7 +495,7 @@
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ef4444;
+  background: var(--error);
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -508,7 +508,7 @@
 .best-score {
   margin-top: 16px;
   padding: 12px 20px;
-  background: var(--bg-tertiary, #16213e);
+  background: var(--bg-tertiary);
   border-radius: 8px;
 }
 
@@ -517,7 +517,7 @@
 }
 
 .best-score strong {
-  color: #10b981;
+  color: var(--success);
   font-size: 20px;
 }
 

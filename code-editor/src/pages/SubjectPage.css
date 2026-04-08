@@ -3,66 +3,72 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  background-color: #0f0f1a;
+  background-color: var(--bg-primary);
 }
 
-.subject-page.light {
-  background-color: #f5f5f5;
-}
-
+/* Toolbar */
 .subject-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  background-color: #1a1a2e;
-  border-bottom: 1px solid #2d2d44;
-}
-
-.subject-page.light .subject-toolbar {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .toolbar-left {
   display: flex;
   gap: 16px;
+  align-items: center;
 }
 
 .toolbar-right {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .theme-btn {
   padding: 8px 12px;
   border-radius: 6px;
-  border: 1px solid #2d2d44;
+  border: 1px solid var(--border);
   background-color: transparent;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.subject-page.light .theme-btn {
-  border-color: #d0d0d0;
-  color: #1e1e1e;
-}
-
 .theme-btn:hover {
-  background-color: #2d2d44;
+  background-color: var(--bg-tertiary);
 }
 
-.subject-page.light .theme-btn:hover {
-  background-color: #e0e0e0;
+.chat-toggle-toolbar-btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-toggle-toolbar-btn:hover {
+  background-color: var(--accent-muted);
+  border-color: var(--accent);
+}
+
+.chat-toggle-toolbar-btn.active {
+  background-color: var(--accent-muted);
+  border-color: var(--accent);
 }
 
 .run-btn {
   padding: 8px 16px;
   border-radius: 6px;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-accent);
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -80,6 +86,7 @@
   cursor: not-allowed;
 }
 
+/* 3-Column Content Layout */
 .subject-content {
   display: flex;
   flex: 1;
@@ -87,21 +94,23 @@
   overflow: hidden;
 }
 
-.info-section {
-  width: 45%;
-  min-width: 300px;
-  border-right: 1px solid #2d2d44;
+/* Column 1: Lessons/Info */
+.lessons-column {
+  width: 35%;
+  min-width: 280px;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
   overflow: hidden;
 }
 
-.subject-page.light .info-section {
-  border-right: 1px solid #e0e0e0;
-}
-
-.editor-section {
+/* Column 2: Editor/Tests */
+.editor-column {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 400px;
   overflow: hidden;
 }
 
@@ -115,6 +124,23 @@
   height: 100%;
 }
 
+/* Column 3: Chat (collapsible) */
+.chat-column {
+  width: 320px;
+  min-width: 280px;
+  max-width: 400px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+}
+
+/* Adjust editor column when chat is open */
+.subject-page.chat-open .editor-column {
+  min-width: 350px;
+}
+
 /* Loading State */
 .subject-loading {
   display: flex;
@@ -122,14 +148,14 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .subject-loading .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #2d2d44;
-  border-top-color: #667eea;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 16px;
@@ -141,61 +167,35 @@
   }
 }
 
-/* Challenge Card in Toolbar */
-.challenge-card-wrapper {
-  margin-left: 8px;
-  padding-left: 16px;
-  border-left: 1px solid #2d2d44;
-}
-
-.subject-page.light .challenge-card-wrapper {
-  border-left: 1px solid #e0e0e0;
-}
-
-.challenge-card-wrapper .challenge-card {
-  padding: 8px 16px;
-  min-width: 180px;
-  background: #16213e;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.subject-page.light .challenge-card-wrapper .challenge-card {
-  background: #f0f0f5;
-}
-
-.challenge-card-wrapper .challenge-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.challenge-card-wrapper .challenge-card.locked {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.challenge-card-wrapper .challenge-card.locked:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.challenge-card-wrapper .challenge-card-icon {
-  font-size: 20px;
-}
-
-.challenge-card-wrapper .challenge-card-content {
-  text-align: left;
-}
-
-.challenge-card-wrapper .challenge-card-badge {
-  font-size: 9px;
-  padding: 2px 6px;
-}
-
-.challenge-card-wrapper .challenge-card-title {
-  font-size: 12px;
-  margin-bottom: 0;
+/* Responsive: Stack columns on narrow screens */
+@media (max-width: 1024px) {
+  .subject-content {
+    flex-direction: column;
+  }
+  
+  .lessons-column {
+    width: 100%;
+    max-width: none;
+    min-width: auto;
+    max-height: 30vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .editor-column {
+    min-width: auto;
+    flex: 1;
+  }
+  
+  .chat-column {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 320px;
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 .challenge-card-wrapper .challenge-card-subtitle {

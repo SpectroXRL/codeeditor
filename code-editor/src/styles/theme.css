@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Theme CSS Variables
+   Dark mode is default. Light mode via [data-theme="light"] on <html>.
+   ========================================================================== */
+
+:root {
+  /* Background */
+  --bg-primary: #212529;
+  --bg-secondary: #343a40;
+  --bg-tertiary: #495057;
+  --bg-input: #2b3035;
+  --bg-elevated: #3d4349;
+
+  /* Text */
+  --text-primary: #f8f9fa;
+  --text-secondary: #adb5bd;
+  --text-muted: #6c757d;
+
+  /* Borders */
+  --border: #495057;
+  --border-subtle: #3d4349;
+
+  /* Accent */
+  --accent: #0d6efd;
+  --accent-hover: #0b5ed7;
+  --accent-muted: rgba(13, 110, 253, 0.2);
+
+  /* Semantic */
+  --success: #198754;
+  --success-muted: rgba(25, 135, 84, 0.2);
+  --error: #dc3545;
+  --error-muted: rgba(220, 53, 69, 0.2);
+  --warning: #ffc107;
+  --warning-muted: rgba(255, 193, 7, 0.2);
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  --gradient-success: linear-gradient(135deg, #198754 0%, #157347 100%);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4);
+
+  /* Monaco editor theme name */
+  --monaco-theme: vs-dark;
+
+  /* Scrollbar */
+  --scrollbar-track: #2b3035;
+  --scrollbar-thumb: #495057;
+  --scrollbar-thumb-hover: #6c757d;
+}
+
+/* Light Mode */
+[data-theme="light"] {
+  /* Background */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e9ecef;
+  --bg-input: #ffffff;
+  --bg-elevated: #ffffff;
+
+  /* Text */
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+
+  /* Borders */
+  --border: #dee2e6;
+  --border-subtle: #e9ecef;
+
+  /* Accent - same as dark */
+  --accent: #0d6efd;
+  --accent-hover: #0b5ed7;
+  --accent-muted: rgba(13, 110, 253, 0.1);
+
+  /* Semantic - same colors, adjusted muted */
+  --success: #198754;
+  --success-muted: rgba(25, 135, 84, 0.1);
+  --error: #dc3545;
+  --error-muted: rgba(220, 53, 69, 0.1);
+  --warning: #ffc107;
+  --warning-muted: rgba(255, 193, 7, 0.15);
+
+  /* Shadows - lighter */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+
+  /* Monaco editor theme name */
+  --monaco-theme: light;
+
+  /* Scrollbar */
+  --scrollbar-track: #e9ecef;
+  --scrollbar-thumb: #adb5bd;
+  --scrollbar-thumb-hover: #6c757d;
+}
+
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}

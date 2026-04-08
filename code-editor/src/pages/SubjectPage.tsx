@@ -10,9 +10,9 @@ import {
 } from "../components/learning/TestCasesPanel";
 import { ChatDrawer } from "../components/learning/ChatDrawer";
 import { HintsPanel } from "../components/learning/HintsPanel";
-import { ChallengeCard } from "../components/learning/ChallengeCard";
 import { CodeEditor } from "../components/CodeEditor";
 import { useAuth } from "../context/useAuth";
+import { useTheme } from "../context/ThemeContext";
 import { useAIChatLimit } from "../hooks/useAIChatLimit";
 import {
   getSubjectById,
@@ -30,6 +30,7 @@ export function SubjectPage() {
   const { subjectId } = useParams<{ subjectId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme, toggleTheme, monacoTheme } = useTheme();
 
   // Rate limiting for AI chat
   const {
@@ -53,7 +54,6 @@ export function SubjectPage() {
 
   // Editor state
   const [code, setCode] = useState<string>("");
-  const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
 
   // Test state
   const [isRunning, setIsRunning] = useState(false);
@@ -250,11 +250,6 @@ export function SubjectPage() {
     }
   };
 
-  // Toggle theme
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "vs-dark" ? "light" : "vs-dark"));
-  };
-
   // Toggle chat drawer
   const handleToggleChat = useCallback(() => {
     setChatDrawerOpen((prev) => !prev);
@@ -290,7 +285,9 @@ export function SubjectPage() {
 
   return (
     <PageLayout>
-      <div className={`subject-page ${theme}`}>
+      <div
+        className={`subject-page ${theme} ${chatDrawerOpen ? "chat-open" : ""}`}
+      >
         <div className="subject-toolbar">
           <div className="toolbar-left">
             <TopicDropdown
@@ -298,6 +295,8 @@ export function SubjectPage() {
               selectedTopic={selectedTopic}
               onSelect={handleTopicChange}
               disabled={isRunning}
+              subtopicIds={subtopicIds}
+              userId={user?.id}
             />
             <SubTopicDropdown
               subtopics={subtopics}
@@ -305,21 +304,19 @@ export function SubjectPage() {
               onSelect={handleSubTopicChange}
               disabled={isRunning}
             />
-            {user && selectedTopic && (
-              <div className="challenge-card-wrapper">
-                <ChallengeCard
-                  type="mini_boss"
-                  topicId={selectedTopic.id}
-                  userId={user.id}
-                  topicName={selectedTopic.name}
-                  subtopicIds={subtopicIds}
-                />
-              </div>
-            )}
           </div>
           <div className="toolbar-right">
             <button className="theme-btn" onClick={toggleTheme}>
-              {theme === "vs-dark" ? "☀️" : "🌙"}
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+            <button
+              className={`chat-toggle-toolbar-btn ${chatDrawerOpen ? "active" : ""}`}
+              onClick={handleToggleChat}
+              title={
+                chatDrawerOpen ? "Close AI assistant" : "Open AI assistant"
+              }
+            >
+              💬
             </button>
             <button
               className="run-btn"
@@ -332,22 +329,44 @@ export function SubjectPage() {
         </div>
 
         <div className="subject-content">
-          <div className="info-section">
+          {/* Column 1: Lessons/Info */}
+          <div className="lessons-column">
             <InformationPanel content={content} loading={loadingContent} />
+            <HintsPanel
+              hints={content?.hints || []}
+              hintsRevealed={hintsRevealed}
+              onRevealNext={handleRevealNextHint}
+              isAuthenticated={!!user}
+            />
           </div>
 
-          <div className="editor-section">
+          {/* Column 2: Editor/Tests */}
+          <div className="editor-column">
             <div className="code-area">
               <CodeEditor
                 code={code}
                 language={getMonacoLanguage()}
-                theme={theme}
+                theme={monacoTheme}
                 onChange={handleCodeChange}
                 disabled={isRunning}
               />
+            </div>
+            <TestCasesPanel
+              visibleTests={content?.test_cases_visible || []}
+              visibleResults={testResults}
+              hiddenPassed={hiddenPassed}
+              hiddenTotal={content?.test_cases_hidden?.length || 0}
+              isRunning={isRunning}
+              allPassed={allPassed}
+            />
+          </div>
+
+          {/* Column 3: Chat (collapsible) */}
+          {chatDrawerOpen && (
+            <div className="chat-column">
               <ChatDrawer
                 isOpen={chatDrawerOpen}
-                onToggle={handleToggleChat}
+                onClose={handleToggleChat}
                 code={code}
                 lessonInfo={content?.information || ""}
                 lessonTitle={content?.title || ""}
@@ -360,21 +379,7 @@ export function SubjectPage() {
                 onMessageSent={handleChatMessageSent}
               />
             </div>
-            <HintsPanel
-              hints={content?.hints || []}
-              hintsRevealed={hintsRevealed}
-              onRevealNext={handleRevealNextHint}
-              isAuthenticated={!!user}
-            />
-            <TestCasesPanel
-              visibleTests={content?.test_cases_visible || []}
-              visibleResults={testResults}
-              hiddenPassed={hiddenPassed}
-              hiddenTotal={content?.test_cases_hidden?.length || 0}
-              isRunning={isRunning}
-              allPassed={allPassed}
-            />
-          </div>
+          )}
         </div>
       </div>
     </PageLayout>

@@ -3,8 +3,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 24px;
-  background-color: #1a1a2e;
-  border-bottom: 1px solid #2d2d44;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .header-logo {
@@ -15,8 +15,8 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--text-primary);
+  background: var(--gradient-accent);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -29,7 +29,7 @@
 }
 
 .auth-loading {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .user-email {
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -61,7 +61,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-accent);
   color: white;
 }
 
@@ -72,12 +72,12 @@
 
 .btn-secondary {
   background-color: transparent;
-  color: #9ca3af;
-  border: 1px solid #3d3d5c;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-  background-color: #2d2d44;
+  background-color: var(--bg-tertiary);
   color: #ffffff;
 }
 
