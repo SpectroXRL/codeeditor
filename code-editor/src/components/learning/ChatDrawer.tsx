@@ -9,7 +9,7 @@ import "./ChatDrawer.css";
 
 interface ChatDrawerProps {
   isOpen: boolean;
-  onToggle: () => void;
+  onClose: () => void;
   code: string;
   lessonInfo: string;
   lessonTitle: string;
@@ -24,7 +24,7 @@ interface ChatDrawerProps {
 
 export function ChatDrawer({
   isOpen,
-  onToggle,
+  onClose,
   code,
   lessonInfo,
   lessonTitle,
@@ -120,132 +120,128 @@ export function ChatDrawer({
   };
 
   return (
-    <div className={`chat-drawer ${isOpen ? "open" : ""}`}>
-      {/* Toggle Button - always visible */}
-      <button
-        className="chat-toggle-btn"
-        onClick={onToggle}
-        title={isOpen ? "Close chat" : "Open AI assistant"}
-      >
-        {isOpen ? "✕" : "💬"}
-      </button>
-
-      {isOpen && (
-        <div className="chat-container">
-          {/* Header */}
-          <div className="chat-header">
+    <div className="chat-drawer">
+      <div className="chat-container">
+        {/* Header */}
+        <div className="chat-header">
+          <div className="chat-header__left">
             <span className="chat-header__icon">🤖</span>
             <span className="chat-header__title">AI Assistant</span>
           </div>
+          <button
+            className="chat-close-btn"
+            onClick={onClose}
+            title="Close chat"
+          >
+            ✕
+          </button>
+        </div>
 
-          {/* Messages Area */}
-          <div className="chat-messages">
-            {!isAuthenticated ? (
-              <div className="chat-auth-prompt">
-                <span className="auth-icon">🔒</span>
-                <p>Sign in to chat with the AI assistant</p>
-                <p className="auth-subtext">
-                  Get help understanding concepts and debugging your code
-                </p>
+        {/* Messages Area */}
+        <div className="chat-messages">
+          {!isAuthenticated ? (
+            <div className="chat-auth-prompt">
+              <span className="auth-icon">🔒</span>
+              <p>Sign in to chat with the AI assistant</p>
+              <p className="auth-subtext">
+                Get help understanding concepts and debugging your code
+              </p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="chat-empty">
+              <span className="empty-icon">👋</span>
+              <p>Hi! I'm here to help you learn.</p>
+              <p className="empty-subtext">
+                Ask me about the lesson, your code, or any programming
+                questions.
+              </p>
+              <div className="chat-suggestions">
+                <button
+                  onClick={() =>
+                    setInput("I'm stuck, can you help me understand this?")
+                  }
+                >
+                  I'm stuck
+                </button>
+                <button
+                  onClick={() =>
+                    setInput("Can you explain what I'm doing wrong?")
+                  }
+                >
+                  What's wrong?
+                </button>
+                <button
+                  onClick={() =>
+                    setInput("How should I approach this problem?")
+                  }
+                >
+                  How to approach?
+                </button>
               </div>
-            ) : messages.length === 0 ? (
-              <div className="chat-empty">
-                <span className="empty-icon">👋</span>
-                <p>Hi! I'm here to help you learn.</p>
-                <p className="empty-subtext">
-                  Ask me about the lesson, your code, or any programming
-                  questions.
-                </p>
-                <div className="chat-suggestions">
-                  <button
-                    onClick={() =>
-                      setInput("I'm stuck, can you help me understand this?")
-                    }
-                  >
-                    I'm stuck
-                  </button>
-                  <button
-                    onClick={() =>
-                      setInput("Can you explain what I'm doing wrong?")
-                    }
-                  >
-                    What's wrong?
-                  </button>
-                  <button
-                    onClick={() =>
-                      setInput("How should I approach this problem?")
-                    }
-                  >
-                    How to approach?
-                  </button>
+            </div>
+          ) : (
+            <>
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`chat-message ${msg.role}`}>
+                  <div className="message-content">{msg.content}</div>
                 </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((msg, idx) => (
-                  <div key={idx} className={`chat-message ${msg.role}`}>
-                    <div className="message-content">{msg.content}</div>
+              ))}
+              {isLoading && (
+                <div className="chat-message assistant">
+                  <div className="message-content thinking">
+                    <span className="thinking-dots">Thinking</span>
                   </div>
-                ))}
-                {isLoading && (
-                  <div className="chat-message assistant">
-                    <div className="message-content thinking">
-                      <span className="thinking-dots">Thinking</span>
-                    </div>
-                  </div>
-                )}
-                {error && (
-                  <div className="chat-error">
-                    <span>⚠️ {error}</span>
-                    <button onClick={handleSendMessage}>Retry</button>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-
-          {/* Input Area */}
-          {isAuthenticated && (
-            <div className="chat-input-area">
-              <textarea
-                ref={inputRef}
-                className="chat-input"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={
-                  canCall ? "Ask a question..." : "Rate limit reached"
-                }
-                disabled={!canCall || isLoading}
-                rows={2}
-              />
-              <button
-                className="chat-send-btn"
-                onClick={handleSendMessage}
-                disabled={!input.trim() || !canCall || isLoading}
-              >
-                {isLoading ? "..." : "→"}
-              </button>
-            </div>
-          )}
-
-          {/* Footer with rate limit */}
-          {isAuthenticated && (
-            <div className="chat-footer">
-              <span className="rate-info">
-                {callsUsed}/{maxCalls} messages used
-                {!canCall && resetTime && (
-                  <span className="reset-time">
-                    {" "}
-                    · Resets in {formatResetTime(resetTime)}
-                  </span>
-                )}
-              </span>
-            </div>
+                </div>
+              )}
+              {error && (
+                <div className="chat-error">
+                  <span>⚠️ {error}</span>
+                  <button onClick={handleSendMessage}>Retry</button>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </>
           )}
         </div>
-      )}
+
+        {/* Input Area */}
+        {isAuthenticated && (
+          <div className="chat-input-area">
+            <textarea
+              ref={inputRef}
+              className="chat-input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={canCall ? "Ask a question..." : "Rate limit reached"}
+              disabled={!canCall || isLoading}
+              rows={2}
+            />
+            <button
+              className="chat-send-btn"
+              onClick={handleSendMessage}
+              disabled={!input.trim() || !canCall || isLoading}
+            >
+              {isLoading ? "..." : "→"}
+            </button>
+          </div>
+        )}
+
+        {/* Footer with rate limit */}
+        {isAuthenticated && (
+          <div className="chat-footer">
+            <span className="rate-info">
+              {callsUsed}/{maxCalls} messages used
+              {!canCall && resetTime && (
+                <span className="reset-time">
+                  {" "}
+                  · Resets in {formatResetTime(resetTime)}
+                </span>
+              )}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

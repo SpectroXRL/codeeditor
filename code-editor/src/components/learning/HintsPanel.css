@@ -1,6 +1,6 @@
 .hints-panel {
-  background: #1a1a2e;
-  border: 1px solid #2d2d44;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 16px;
   overflow: hidden;
@@ -41,7 +41,7 @@
 }
 
 .hints-auth-prompt p {
-  color: #9ca3af;
+  color: var(--text-secondary);
   margin: 0;
   font-size: 14px;
 }
@@ -53,7 +53,7 @@
 }
 
 .hints-empty p {
-  color: #e5e7eb;
+  color: var(--text-primary);
   margin: 0 0 12px;
   font-size: 14px;
 }
