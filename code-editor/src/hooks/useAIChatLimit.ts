@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 
-const STORAGE_KEY = "ai_explanation_calls";
-const MAX_CALLS_PER_HOUR = 10;
+const STORAGE_KEY = "ai_chat_calls";
+const MAX_CALLS_PER_HOUR = 20;
 const HOUR_IN_MS = 60 * 60 * 1000;
 
 interface RateLimitState {
@@ -35,7 +35,7 @@ function getInitialCalls(userId: string | null): number[] {
   return filterRecentCalls(state.calls);
 }
 
-export interface UseRateLimitResult {
+export interface UseAIChatLimitResult {
   canCall: boolean;
   callsRemaining: number;
   callsUsed: number;
@@ -44,7 +44,7 @@ export interface UseRateLimitResult {
   maxCalls: number;
 }
 
-export function useRateLimit(userId: string | null): UseRateLimitResult {
+export function useAIChatLimit(userId: string | null): UseAIChatLimitResult {
   const [calls, setCalls] = useState<number[]>(() => getInitialCalls(userId));
 
   // Re-filter calls periodically to update UI when limits reset
@@ -57,7 +57,6 @@ export function useRateLimit(userId: string | null): UseRateLimitResult {
   }, []);
 
   // Sync with localStorage when userId changes
-  // This is a valid pattern for syncing with external storage (localStorage)
   useEffect(() => {
     setCalls(getInitialCalls(userId));
   }, [userId]);

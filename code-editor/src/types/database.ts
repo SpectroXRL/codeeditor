@@ -38,6 +38,7 @@ export interface Content {
   test_cases_visible: TestCase[];
   test_cases_hidden: TestCase[];
   language_id: number;
+  hints: string[];
   created_at: string;
 }
 
