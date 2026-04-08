@@ -3,7 +3,7 @@
     "api/execute-code.ts": {
       "maxDuration": 60
     },
-    "api/explain-error.ts": {
+    "api/chat-assistant.ts": {
       "maxDuration": 30
     }
   }
