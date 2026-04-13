@@ -4,6 +4,7 @@ import { ToastContainer } from "./components/Toast";
 import { HomePage } from "./pages/HomePage";
 import { SubjectPage } from "./pages/SubjectPage";
 import { ChallengePage } from "./pages/ChallengePage";
+import { AgenticChallengePage } from "./pages/AgenticChallengePage";
 import "./App.css";
 
 function App() {
@@ -18,6 +19,11 @@ function App() {
           <Route
             path="/challenge/subject/:subjectId"
             element={<ChallengePage />}
+          />
+          {/* Agentic (Prompt Engineering) challenge route */}
+          <Route
+            path="/agentic-challenge/:challengeId"
+            element={<AgenticChallengePage />}
           />
         </Routes>
         <ToastContainer />

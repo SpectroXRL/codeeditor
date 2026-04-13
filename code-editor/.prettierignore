@@ -1,0 +1,8 @@
+# Ignore SQL files - prettier breaks SQL syntax
+*.sql
+supabase/
+
+# Build outputs
+dist/
+build/
+node_modules/

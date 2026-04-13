@@ -72,6 +72,21 @@ export const STATUS = {
 // AI Tutor Types
 export type { AssistanceTier } from './database';
 
+// Agentic Engineering Types
+export type {
+  ChallengeMode,
+  PromptTechnique,
+  AgenticChallenge,
+  PromptTurn,
+  AgenticAttempt,
+  PromptScores,
+  PromptHeuristics,
+  PromptValidationLog,
+  PromptRubric,
+} from './database';
+
+export { DEFAULT_PROMPT_RUBRIC, PROMPT_TECHNIQUES } from './database';
+
 export interface DetectedIssue {
   type: 'syntax' | 'logic' | 'incomplete' | 'style';
   severity: 'info' | 'warning';
