@@ -188,6 +188,30 @@ export interface PromptScores {
   created_at: string;
 }
 
+/**
+ * API/UI shape for prompt scores (camelCase, scores only)
+ * Used in API responses and UI components
+ */
+export interface ApiPromptScores {
+  clarity: number;
+  efficiency: number;
+  context: number;
+  technique: number;
+  final: number;
+}
+
+/**
+ * API/UI shape for heuristics data (camelCase)
+ */
+export interface ApiHeuristicsData {
+  totalIterations: number;
+  totalPromptTokens: number;
+  averagePromptLength: number;
+  techniquesDetected: PromptTechnique[];
+  improvementBetweenIterations: boolean;
+  firstAttemptSuccess: boolean;
+}
+
 export interface PromptHeuristics {
   total_iterations: number;
   total_prompt_tokens: number;

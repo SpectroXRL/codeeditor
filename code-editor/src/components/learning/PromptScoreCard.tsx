@@ -4,19 +4,11 @@
  */
 
 import { useState } from "react";
-import type { PromptTechnique } from "../../types/database";
+import type { PromptTechnique, ApiPromptScores } from "../../types/database";
 import "./PromptScoreCard.css";
 
-interface PromptScores {
-  clarity: number;
-  efficiency: number;
-  context: number;
-  technique: number;
-  final: number;
-}
-
 interface PromptScoreCardProps {
-  scores: PromptScores;
+  scores: ApiPromptScores;
   aiFeedback: string;
   referencePrompt: string | null;
   techniquesTags: PromptTechnique[];

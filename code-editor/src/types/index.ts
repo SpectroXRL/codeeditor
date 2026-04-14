@@ -80,12 +80,22 @@ export type {
   PromptTurn,
   AgenticAttempt,
   PromptScores,
+  ApiPromptScores,
   PromptHeuristics,
+  ApiHeuristicsData,
   PromptValidationLog,
   PromptRubric,
 } from './database';
 
 export { DEFAULT_PROMPT_RUBRIC, PROMPT_TECHNIQUES } from './database';
+
+// Type transformation utilities
+export {
+  toApiPromptScores,
+  toDbPromptScores,
+  toApiHeuristics,
+  toDbHeuristics,
+} from './transforms';
 
 export interface DetectedIssue {
   type: 'syntax' | 'logic' | 'incomplete' | 'style';

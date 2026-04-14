@@ -1,37 +1,21 @@
+/**
+ * HintsPanel - Specialized styles
+ * Base panel styles handled by Panel component
+ */
+
 .hints-panel {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 8px;
   margin-bottom: 16px;
-  overflow: hidden;
 }
 
-.hints-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+/* Override panel content padding */
+.hints-panel .panel-content {
+  padding: 16px;
 }
 
-.hints-header__icon {
-  font-size: 16px;
-}
-
-.hints-header__title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
+/* Header count badge */
 .hints-header__count {
-  margin-left: auto;
   font-size: 12px;
   color: rgba(31, 41, 55, 0.8);
-}
-
-.hints-body {
-  padding: 16px;
 }
 
 /* Auth prompt */

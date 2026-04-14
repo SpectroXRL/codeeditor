@@ -1,0 +1,100 @@
+/**
+ * OutputPanel - Specialized styles
+ * Base panel styles handled by Panel component
+ */
+
+.output-panel {
+  height: 100%;
+  background-color: var(--bg-primary);
+}
+
+.output-panel .panel-header {
+  background-color: var(--bg-secondary);
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-success {
+  background-color: var(--success);
+  color: white;
+}
+
+.status-compile-error {
+  background-color: var(--error);
+  color: white;
+}
+
+.status-runtime-error {
+  background-color: #da3633;
+  color: white;
+}
+
+.status-tle {
+  background-color: var(--warning);
+  color: white;
+}
+
+.status-error {
+  background-color: var(--text-muted);
+  color: white;
+}
+
+/* Output Sections */
+.output-section {
+  margin-bottom: 16px;
+}
+
+.output-section:last-child {
+  margin-bottom: 0;
+}
+
+.output-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.output-section pre {
+  margin: 0;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: var(--bg-secondary);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+
+.stdout {
+  color: var(--text-primary);
+}
+
+.error-output {
+  color: var(--error);
+}
+
+.error-message {
+  color: var(--error);
+  padding: 12px;
+  background-color: rgba(248, 81, 73, 0.1);
+  border-radius: 4px;
+}
+
+/* Execution Stats */
+.execution-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}

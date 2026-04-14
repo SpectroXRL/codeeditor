@@ -9,14 +9,15 @@ import OpenAI from "openai";
  * Called after tests pass or iterations are exhausted
  */
 
-interface PromptTurn {
+// Types imported from shared definitions
+type PromptTurn = {
   id: string;
   prompt: string;
   generatedCode: string;
   agentReasoning: string;
   timestamp: string;
   iterationNumber: number;
-}
+};
 
 type PromptTechnique = 
   | 'zero-shot'
@@ -27,6 +28,15 @@ type PromptTechnique =
   | 'context-management'
   | 'tool-calling';
 
+// API scores shape - matches ApiPromptScores from src/types/database.ts
+type PromptScores = {
+  clarity: number;
+  efficiency: number;
+  context: number;
+  technique: number;
+  final: number;
+};
+
 interface EvaluateRequest {
   attemptId: string;
   promptHistory: PromptTurn[];
@@ -34,14 +44,6 @@ interface EvaluateRequest {
   testsPassed: boolean;
   maxIterations: number;
   referencePrompt?: string;
-}
-
-interface PromptScores {
-  clarity: number;
-  efficiency: number;
-  context: number;
-  technique: number;
-  final: number;
 }
 
 interface HeuristicsData {

@@ -1,0 +1,127 @@
+/**
+ * Error Message Styles
+ */
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--error);
+}
+
+.error-message__content {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+}
+
+.error-message__icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.error-message__text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.error-message__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.error-message__btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.error-message__btn:hover {
+  opacity: 0.8;
+}
+
+.error-message__btn--retry {
+  background-color: var(--error);
+  color: white;
+}
+
+.error-message__btn--dismiss {
+  background: transparent;
+  color: var(--error);
+  padding: 4px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ============================================
+   Variant: Inline (for forms)
+   ============================================ */
+
+.error-message--inline {
+  padding: 0;
+  background: transparent;
+}
+
+.error-message--inline .error-message__text {
+  font-size: 13px;
+}
+
+/* ============================================
+   Variant: Banner (for pages)
+   ============================================ */
+
+.error-message--banner {
+  padding: 12px 16px;
+  background-color: var(--error-muted);
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  justify-content: space-between;
+}
+
+.error-message--banner .error-message__content {
+  align-items: center;
+}
+
+/* ============================================
+   Variant: Box (for panels/drawers)
+   ============================================ */
+
+.error-message--box {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: var(--error-muted);
+  border-radius: 6px;
+  text-align: center;
+  gap: 8px;
+}
+
+.error-message--box .error-message__content {
+  flex-direction: column;
+  align-items: center;
+}
+
+.error-message--box .error-message__icon {
+  font-size: 24px;
+}
+
+.error-message--box .error-message__actions {
+  margin-top: 8px;
+}
+
+.error-message--box .error-message__btn--retry {
+  padding: 8px 16px;
+  font-size: 14px;
+}
