@@ -79,3 +79,14 @@ export async function runTestCases(
 
   return results;
 }
+
+/**
+ * Run code and return the result (simple execution without test cases)
+ */
+export async function runCode(
+  sourceCode: string,
+  languageId: number,
+  stdin: string = ''
+): Promise<SubmissionResult> {
+  return executeCode(sourceCode, languageId, stdin);
+}

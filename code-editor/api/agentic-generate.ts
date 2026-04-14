@@ -18,6 +18,14 @@ interface PromptTurn {
   iterationNumber: number;
 }
 
+// Practice mode conversation turn (simpler structure)
+interface PracticeConversationTurn {
+  role: 'user' | 'assistant';
+  content: string;
+  code?: string;
+  reasoning?: string;
+}
+
 interface TestCase {
   input: string;
   expected_output: string;
@@ -32,11 +40,14 @@ interface ChallengeContext {
 }
 
 interface GenerateRequest {
-  attemptId: string;
+  attemptId?: string;  // Optional for practice mode
   prompt: string;
-  conversationHistory: PromptTurn[];
-  challengeContext: ChallengeContext;
-  userId: string;
+  conversationHistory: PromptTurn[] | PracticeConversationTurn[];
+  challengeContext?: ChallengeContext;  // For challenge mode
+  // Practice mode fields
+  currentCode?: string;
+  lessonContext?: string;
+  userId?: string;
 }
 
 interface ValidationResult {
@@ -186,7 +197,9 @@ Your role:
 Output format - You MUST respond with valid JSON in this exact structure:
 {
   "reasoning": "Your step-by-step thinking about how you interpreted the prompt and what you're going to build. This helps students understand what worked (or didn't) in their prompt. Keep this to 2-4 sentences.",
-  "code": "The complete, working code that fulfills the requirements. Must be syntactically correct."
+  "code": "The complete, working code that fulfills the requirements. Must be syntactically correct.",
+  "message": "A brief, friendly message describing what you did (1 sentence).",
+  "feedback": "A short tip about their prompting technique (optional, only if relevant)."
 }
 
 Guidelines:
@@ -194,10 +207,33 @@ Guidelines:
 - If the prompt is vague, make reasonable assumptions and note them in reasoning
 - If the prompt is unclear about implementation details, choose sensible defaults
 - Do not refuse to generate code - always attempt something based on the prompt
-- The code should satisfy the test cases described in the challenge context
+- The code should satisfy the test cases described in the challenge context (if provided)
 - For JavaScript/TypeScript: use modern syntax (ES6+), avoid deprecated patterns
 
-Remember: Your output teaches students what kind of prompts are effective. Good prompts lead to correct code; vague prompts lead to assumptions that may or may not match the tests.`;
+Remember: Your output teaches students what kind of prompts are effective. Good prompts lead to correct code; vague prompts lead to assumptions that may or may not match expectations.`;
+
+// Practice mode system prompt for cumulative code building
+const PRACTICE_SYSTEM_PROMPT = `You are a code generation assistant helping students learn prompt engineering. Students write prompts to build and refine code iteratively.
+
+Your role:
+1. Generate or modify code based on the student's prompt
+2. Build upon existing code when provided - don't start from scratch unless asked
+3. Explain your reasoning so students learn what makes prompts effective
+
+Output format - You MUST respond with valid JSON:
+{
+  "reasoning": "How you interpreted the prompt and what changes you made (2-4 sentences).",
+  "code": "The complete, updated code. Build upon existing code when appropriate.",
+  "message": "A brief description of what you did (1 sentence).",
+  "feedback": "An optional tip about their prompting technique."
+}
+
+Guidelines:
+- When existing code is provided, modify/extend it rather than replacing entirely (unless asked)
+- Generate complete, working code - not pseudocode
+- Use modern JavaScript/TypeScript syntax (ES6+)
+- If the prompt is vague, make reasonable assumptions and note them
+- Be encouraging and educational in your feedback`;
 
 // ============================================
 // Build Context for LLM
@@ -261,21 +297,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!body.prompt || typeof body.prompt !== 'string') {
       return res.status(400).json({ error: "Prompt is required" });
     }
-    if (!body.challengeContext) {
-      return res.status(400).json({ error: "Challenge context is required" });
-    }
-    if (!body.attemptId) {
-      return res.status(400).json({ error: "Attempt ID is required" });
-    }
     
-    const { prompt, conversationHistory = [], challengeContext } = body;
+    const { 
+      prompt, 
+      conversationHistory = [], 
+      challengeContext,
+      currentCode,
+      lessonContext 
+    } = body;
+    
+    // Determine if this is challenge mode or practice mode
+    const isPracticeMode = !challengeContext;
+    
+    // Validate challenge mode requirements
+    if (!isPracticeMode && !body.attemptId) {
+      return res.status(400).json({ error: "Attempt ID is required for challenge mode" });
+    }
     
     // Calculate iterations used
     const iterationsUsed = conversationHistory.length;
-    const maxIterations = 5; // Could be passed from challenge config
+    const maxIterations = 5;
     const iterationsRemaining = maxIterations - iterationsUsed - 1;
     
-    if (iterationsRemaining < 0) {
+    if (!isPracticeMode && iterationsRemaining < 0) {
       return res.status(400).json({ 
         error: "Maximum iterations exceeded",
         iterationsRemaining: 0
@@ -286,7 +330,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const validation = validatePrompt(prompt);
     
     if (!validation.valid) {
-      // Log blocked prompt (in production, save to database)
       console.warn('Prompt blocked:', {
         attemptId: body.attemptId,
         reason: validation.blockedReason,
@@ -296,26 +339,72 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({
         error: "Prompt validation failed",
         blockedReason: getSafeBlockMessage(validation.blockedReason || ''),
-        iterationsRemaining: iterationsRemaining + 1 // Don't count blocked attempts
+        iterationsRemaining: iterationsRemaining + 1
       });
     }
     
     // Build messages for OpenAI
     const openai = new OpenAI({ apiKey });
     
-    const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-      { role: 'system', content: CODE_GENERATION_SYSTEM_PROMPT },
-      { role: 'user', content: buildChallengeContextMessage(challengeContext) },
-      ...buildConversationHistory(conversationHistory),
-      { role: 'user', content: validation.sanitized }
-    ];
+    let messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+    
+    if (isPracticeMode) {
+      // Practice mode: cumulative code building
+      messages = [
+        { role: 'system', content: PRACTICE_SYSTEM_PROMPT }
+      ];
+      
+      // Add lesson context if available
+      if (lessonContext) {
+        messages.push({ 
+          role: 'user', 
+          content: `LESSON CONTEXT: ${lessonContext}\n\nKeep this context in mind when generating code.` 
+        });
+        messages.push({ 
+          role: 'assistant', 
+          content: 'I understand the lesson context. I\'ll generate code that aligns with these concepts.' 
+        });
+      }
+      
+      // Add conversation history for practice mode
+      for (const turn of conversationHistory) {
+        if (turn.role === 'user') {
+          messages.push({ role: 'user', content: turn.content });
+        } else {
+          messages.push({ 
+            role: 'assistant', 
+            content: JSON.stringify({
+              reasoning: turn.reasoning || '',
+              code: turn.code || '',
+              message: turn.content
+            })
+          });
+        }
+      }
+      
+      // Add current code context
+      let userMessage = validation.sanitized;
+      if (currentCode && currentCode.trim() && !currentCode.includes('// Your generated code will appear here')) {
+        userMessage = `CURRENT CODE:\n\`\`\`\n${currentCode}\n\`\`\`\n\nUSER REQUEST: ${validation.sanitized}`;
+      }
+      messages.push({ role: 'user', content: userMessage });
+      
+    } else {
+      // Challenge mode: test-case focused
+      messages = [
+        { role: 'system', content: CODE_GENERATION_SYSTEM_PROMPT },
+        { role: 'user', content: buildChallengeContextMessage(challengeContext!) },
+        ...buildConversationHistory(conversationHistory as PromptTurn[]),
+        { role: 'user', content: validation.sanitized }
+      ];
+    }
     
     // Call OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages,
       max_tokens: 2000,
-      temperature: 0.3, // Lower temperature for more consistent code generation
+      temperature: 0.3,
       response_format: { type: "json_object" }
     });
     
@@ -326,14 +415,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     
     // Parse JSON response
-    let parsed: { reasoning: string; code: string };
+    let parsed: { reasoning: string; code: string; message?: string; feedback?: string };
     try {
       parsed = JSON.parse(responseContent);
     } catch {
-      // Fallback if JSON parsing fails
       parsed = {
         reasoning: "Generated code based on your prompt.",
-        code: responseContent
+        code: responseContent,
+        message: "Code generated."
       };
     }
     
@@ -344,6 +433,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       turnId,
       generatedCode: parsed.code || '',
       agentReasoning: parsed.reasoning || 'Code generated based on your prompt.',
+      reasoning: parsed.reasoning || '',
+      message: parsed.message || 'Code updated successfully.',
+      feedback: parsed.feedback || null,
       iterationsRemaining,
       iterationNumber: iterationsUsed + 1,
       timestamp: new Date().toISOString()
