@@ -9,8 +9,11 @@ import type {
   PromptTurn,
   PromptTechnique,
   PromptScores,
+  ApiPromptScores,
+  ApiHeuristicsData,
   ChallengeAttempt,
 } from '../types/database';
+import { toDbHeuristics } from '../types/transforms';
 
 // ============================================
 // API Interfaces
@@ -44,26 +47,11 @@ interface GenerateCodeError {
   iterationsRemaining?: number;
 }
 
-// API response scores shape (differs from database PromptScores)
-interface ApiPromptScores {
-  clarity: number;
-  efficiency: number;
-  context: number;
-  technique: number;
-  final: number;
-}
-
+// EvaluatePromptResponse uses shared API types from database.ts
 interface EvaluatePromptResponse {
   scores: ApiPromptScores;
   aiFeedback: string;
-  heuristics: {
-    totalIterations: number;
-    totalPromptTokens: number;
-    averagePromptLength: number;
-    techniquesDetected: PromptTechnique[];
-    improvementBetweenIterations: boolean;
-    firstAttemptSuccess: boolean;
-  };
+  heuristics: ApiHeuristicsData;
   referencePrompt: string | null;
   techniquesTags: PromptTechnique[];
 }
@@ -348,7 +336,7 @@ export async function savePromptScores(
     technique_score: evaluation.scores.technique,
     final_score: evaluation.scores.final,
     ai_feedback: evaluation.aiFeedback,
-    heuristics_data: evaluation.heuristics,
+    heuristics_data: toDbHeuristics(evaluation.heuristics),
   });
 
   if (error) {

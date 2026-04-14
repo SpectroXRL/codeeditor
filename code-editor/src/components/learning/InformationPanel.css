@@ -1,21 +1,23 @@
+/**
+ * InformationPanel - Specialized styles
+ * Base panel styles handled by Panel component
+ */
+
 .information-panel {
-  display: flex;
-  flex-direction: column;
   height: 100%;
-  background-color: var(--bg-secondary);
-  overflow: hidden;
 }
 
-.info-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-.info-header h2 {
-  margin: 0;
+/* Override Panel header for larger title */
+.information-panel .panel-header__title {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
+}
+
+.information-panel .panel-header {
+  padding: 20px 24px;
+}
+
+.information-panel .panel-content {
+  padding: 0; /* Let info-content handle padding */
 }
 
 .info-content {

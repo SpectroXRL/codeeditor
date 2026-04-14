@@ -1,0 +1,214 @@
+/* ==========================================================================
+   State Primitives
+   Badges, loading, empty states
+   ========================================================================== */
+
+/* ============================================
+   Badges
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Variants */
+.badge-default {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.badge-success {
+  background-color: var(--success);
+  color: white;
+}
+
+.badge-error {
+  background-color: var(--error);
+  color: white;
+}
+
+.badge-warning {
+  background-color: var(--warning);
+  color: #1f2937;
+}
+
+.badge-info {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Muted variants */
+.badge-success-muted {
+  background-color: var(--success-muted);
+  color: var(--success);
+}
+
+.badge-error-muted {
+  background-color: var(--error-muted);
+  color: var(--error);
+}
+
+.badge-warning-muted {
+  background-color: var(--warning-muted);
+  color: #92400e;
+}
+
+.badge-info-muted {
+  background-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+/* Sizes */
+.badge-sm {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.badge-lg {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+/* Dot indicator */
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.badge-dot.badge-success {
+  background-color: var(--success);
+}
+
+.badge-dot.badge-error {
+  background-color: var(--error);
+}
+
+/* ============================================
+   Loading Container
+   ============================================ */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+  color: var(--text-secondary);
+}
+
+.loading-container--inline {
+  flex-direction: row;
+  padding: 16px;
+}
+
+.loading-container--fullscreen {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg-primary);
+  z-index: 9999;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state__icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.empty-state__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.empty-state__description {
+  font-size: 14px;
+  max-width: 300px;
+  margin: 0;
+}
+
+.empty-state__action {
+  margin-top: 8px;
+}
+
+/* ============================================
+   Status Indicators
+   ============================================ */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status--online .status__dot {
+  background-color: var(--success);
+}
+
+.status--offline .status__dot {
+  background-color: var(--text-muted);
+}
+
+.status--busy .status__dot {
+  background-color: var(--error);
+}
+
+.status--away .status__dot {
+  background-color: var(--warning);
+}
+
+/* ============================================
+   Progress Indicator
+   ============================================ */
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background: var(--gradient-accent);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress--success .progress__bar {
+  background: var(--gradient-success);
+}

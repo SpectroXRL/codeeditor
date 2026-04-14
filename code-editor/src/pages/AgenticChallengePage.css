@@ -284,6 +284,82 @@
   cursor: pointer;
 }
 
+/* Hints Status in Header */
+.hints-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.hints-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.hint-btn {
+  background: var(--warning-muted);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hint-btn:hover {
+  background: var(--warning);
+  color: var(--bg-primary);
+}
+
+/* Hints Panel */
+.hints-panel {
+  margin: 0 24px;
+  padding: 16px;
+  background: var(--warning-muted);
+  border: 1px solid var(--warning);
+  border-radius: 8px;
+}
+
+.hints-panel-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--warning);
+  margin-bottom: 12px;
+}
+
+.hints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hint-item {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+.hint-number {
+  font-weight: 600;
+  color: var(--warning);
+  min-width: 20px;
+}
+
+.hint-item p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .agentic-challenge-content {

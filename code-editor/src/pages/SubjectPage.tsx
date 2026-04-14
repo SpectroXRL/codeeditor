@@ -8,8 +8,10 @@ import {
   TestCasesPanel,
   type TestResult,
 } from "../components/learning/TestCasesPanel";
-import { ChatDrawer } from "../components/learning/ChatDrawer";
-import { HintsPanel } from "../components/learning/HintsPanel";
+import {
+  TabbedSidebar,
+  type SidebarTab,
+} from "../components/learning/TabbedSidebar";
 import { CodeEditor } from "../components/CodeEditor";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";
@@ -61,8 +63,9 @@ export function SubjectPage() {
   const [hiddenPassed, setHiddenPassed] = useState(0);
   const [allPassed, setAllPassed] = useState(false);
 
-  // Chat drawer state
-  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
+  // Sidebar state (combined chat + hints)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<SidebarTab>("chat");
 
   // Hints state
   const [hintsRevealed, setHintsRevealed] = useState(0);
@@ -84,7 +87,7 @@ export function SubjectPage() {
   // Reset hints when lesson changes
   useEffect(() => {
     setHintsRevealed(0);
-    setChatDrawerOpen(false);
+    setSidebarOpen(false);
   }, [selectedSubTopic?.id]);
 
   // Restore saved code from store when it becomes available
@@ -250,9 +253,14 @@ export function SubjectPage() {
     }
   };
 
-  // Toggle chat drawer
-  const handleToggleChat = useCallback(() => {
-    setChatDrawerOpen((prev) => !prev);
+  // Toggle sidebar
+  const handleToggleSidebar = useCallback(() => {
+    setSidebarOpen((prev) => !prev);
+  }, []);
+
+  // Handle tab change
+  const handleTabChange = useCallback((tab: SidebarTab) => {
+    setActiveTab(tab);
   }, []);
 
   // Handle AI chat message sent (for rate limiting)
@@ -286,7 +294,7 @@ export function SubjectPage() {
   return (
     <PageLayout>
       <div
-        className={`subject-page ${theme} ${chatDrawerOpen ? "chat-open" : ""}`}
+        className={`subject-page ${theme} ${sidebarOpen ? "chat-open" : ""}`}
       >
         <div className="subject-toolbar">
           <div className="toolbar-left">
@@ -310,13 +318,11 @@ export function SubjectPage() {
               {theme === "dark" ? "☀️" : "🌙"}
             </button>
             <button
-              className={`chat-toggle-toolbar-btn ${chatDrawerOpen ? "active" : ""}`}
-              onClick={handleToggleChat}
-              title={
-                chatDrawerOpen ? "Close AI assistant" : "Open AI assistant"
-              }
+              className={`chat-toggle-toolbar-btn ${sidebarOpen ? "active" : ""}`}
+              onClick={handleToggleSidebar}
+              title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
-              💬
+              {sidebarOpen ? "✕" : "💬"}
             </button>
             <button
               className="run-btn"
@@ -332,12 +338,6 @@ export function SubjectPage() {
           {/* Column 1: Lessons/Info */}
           <div className="lessons-column">
             <InformationPanel content={content} loading={loadingContent} />
-            <HintsPanel
-              hints={content?.hints || []}
-              hintsRevealed={hintsRevealed}
-              onRevealNext={handleRevealNextHint}
-              isAuthenticated={!!user}
-            />
           </div>
 
           {/* Column 2: Editor/Tests */}
@@ -361,12 +361,14 @@ export function SubjectPage() {
             />
           </div>
 
-          {/* Column 3: Chat (collapsible) */}
-          {chatDrawerOpen && (
+          {/* Column 3: Sidebar (Chat + Hints) */}
+          {sidebarOpen && (
             <div className="chat-column">
-              <ChatDrawer
-                isOpen={chatDrawerOpen}
-                onClose={handleToggleChat}
+              <TabbedSidebar
+                isOpen={sidebarOpen}
+                onClose={handleToggleSidebar}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
                 code={code}
                 lessonInfo={content?.information || ""}
                 lessonTitle={content?.title || ""}
@@ -377,6 +379,9 @@ export function SubjectPage() {
                 maxCalls={aiMaxCalls}
                 resetTime={aiResetTime}
                 onMessageSent={handleChatMessageSent}
+                hints={content?.hints || []}
+                hintsRevealed={hintsRevealed}
+                onRevealNextHint={handleRevealNextHint}
               />
             </div>
           )}

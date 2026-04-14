@@ -4,14 +4,11 @@
  * Students write prompts, AI generates code, tests validate output
  */
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/layout/PageLayout";
 import { CodeEditor } from "../components/CodeEditor";
-import {
-  TestCasesPanel,
-  type TestResult,
-} from "../components/learning/TestCasesPanel";
+import { TestCasesPanel } from "../components/learning/TestCasesPanel";
 import { PromptInput } from "../components/learning/PromptInput";
 import { AgentReasoningPanel } from "../components/learning/AgentReasoningPanel";
 import { ConversationHistory } from "../components/learning/ConversationHistory";
@@ -19,25 +16,9 @@ import { TechniqueTagSelector } from "../components/learning/TechniqueTagSelecto
 import { PromptScoreCard } from "../components/learning/PromptScoreCard";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";
+import { useAgenticChallenge } from "../hooks/useAgenticChallenge";
 import { getChallengeById } from "../services/challenges";
-import { runTestCases } from "../services/judge0";
-import {
-  startAgenticAttempt,
-  getInProgressAgenticAttempt,
-  submitPrompt,
-  addPromptTurn,
-  tagTechniques,
-  completeAgenticAttempt,
-  abandonAgenticAttempt,
-  evaluatePrompts,
-  savePromptScores,
-  logPromptValidation,
-} from "../services/agenticChallenges";
-import {
-  validatePrompt,
-  getSafeBlockMessage,
-} from "../services/inputSanitizer";
-import type { Challenge, PromptTurn, PromptTechnique } from "../types/database";
+import type { Challenge } from "../types/database";
 import { LANGUAGES } from "../types";
 import "./AgenticChallengePage.css";
 
@@ -47,51 +28,49 @@ export function AgenticChallengePage() {
   const { user } = useAuth();
   const { monacoTheme } = useTheme();
 
-  // Challenge data
+  // Challenge data (loaded separately)
   const [challenge, setChallenge] = useState<Challenge | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingChallenge, setLoadingChallenge] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Attempt state
-  const [challengeAttemptId, setChallengeAttemptId] = useState<string | null>(
-    null,
-  );
-  const [agenticAttemptId, setAgenticAttemptId] = useState<string | null>(null);
-  const [promptHistory, setPromptHistory] = useState<PromptTurn[]>([]);
-  const [iterationsUsed, setIterationsUsed] = useState(0);
-  const maxIterations = challenge?.max_iterations || 5;
-
-  // Current generation state
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [currentCode, setCurrentCode] = useState("");
-  const [currentReasoning, setCurrentReasoning] = useState("");
-  const [generationError, setGenerationError] = useState<string | null>(null);
-
-  // Test state
-  const [isRunning, setIsRunning] = useState(false);
-  const [testResults, setTestResults] = useState<TestResult[]>([]);
-  const [allPassed, setAllPassed] = useState(false);
-
-  // Completion state
-  const [isComplete, setIsComplete] = useState(false);
-  const [selectedTechniques, setSelectedTechniques] = useState<
-    PromptTechnique[]
-  >([]);
+  // Score card visibility
   const [showScoreCard, setShowScoreCard] = useState(false);
-  const [evaluationResult, setEvaluationResult] = useState<{
-    scores: {
-      clarity: number;
-      efficiency: number;
-      context: number;
-      technique: number;
-      final: number;
-    };
-    aiFeedback: string;
-    heuristics: { techniquesDetected: PromptTechnique[] };
-    referencePrompt: string | null;
-  } | null>(null);
 
-  // Load challenge
+  // Use the agentic challenge hook
+  const {
+    state,
+    promptHistory,
+    iterationsUsed,
+    maxIterations,
+    currentCode,
+    currentReasoning,
+    generationError,
+    testResults,
+    allTestsPassed,
+    hintsUsed,
+    hintsRemaining,
+    revealedHints,
+    evaluationResult,
+    selectedTechniques,
+    isGenerating,
+    isRunning,
+    isComplete,
+    iterationsExhausted,
+    error,
+    submitPrompt,
+    runTests,
+    requestHint,
+    setSelectedTechniques,
+    completeAttempt,
+    abandonAttempt,
+  } = useAgenticChallenge({
+    challenge,
+    userId: user?.id,
+    onComplete: () => setShowScoreCard(true),
+    onAbandon: () => setShowScoreCard(true),
+  });
+
+  // Load challenge data
   useEffect(() => {
     if (!user) {
       navigate("/");
@@ -99,292 +78,48 @@ export function AgenticChallengePage() {
     }
 
     async function loadChallenge() {
-      if (!challengeId || !user) return;
+      if (!challengeId) return;
 
-      setLoading(true);
-      setError(null);
+      setLoadingChallenge(true);
+      setLoadError(null);
 
       try {
         const challengeData = await getChallengeById(challengeId);
 
         if (!challengeData) {
-          setError("Challenge not found");
-          setLoading(false);
+          setLoadError("Challenge not found");
+          setLoadingChallenge(false);
           return;
         }
 
         // Verify this is an agentic challenge
         if (challengeData.challenge_mode !== "agentic") {
-          // Redirect to regular challenge page
           navigate(`/challenge/${challengeId}`, { replace: true });
           return;
         }
 
         setChallenge(challengeData);
-        setCurrentCode(
-          challengeData.starter_code ||
-            "// Code will appear here after you submit a prompt",
-        );
-
-        // Check for existing in-progress attempt
-        const existingAttempt = await getInProgressAgenticAttempt(
-          challengeId,
-          user.id,
-        );
-
-        if (existingAttempt) {
-          setAgenticAttemptId(existingAttempt.id);
-          setChallengeAttemptId(existingAttempt.challenge_attempt_id);
-          setPromptHistory(existingAttempt.prompt_history as PromptTurn[]);
-          setIterationsUsed(existingAttempt.iterations_used);
-
-          // Restore last generated code
-          const lastTurn = existingAttempt.prompt_history[
-            existingAttempt.prompt_history.length - 1
-          ] as PromptTurn | undefined;
-          if (lastTurn) {
-            setCurrentCode(lastTurn.generatedCode);
-            setCurrentReasoning(lastTurn.agentReasoning);
-          }
-        } else {
-          // Start a new attempt
-          const newAttempt = await startAgenticAttempt(challengeId, user.id);
-          if (newAttempt) {
-            setChallengeAttemptId(newAttempt.challengeAttemptId);
-            setAgenticAttemptId(newAttempt.agenticAttemptId);
-          } else {
-            setError("Failed to start challenge attempt");
-          }
-        }
       } catch (err) {
         console.error("Error loading challenge:", err);
-        setError("Failed to load challenge");
+        setLoadError("Failed to load challenge");
       } finally {
-        setLoading(false);
+        setLoadingChallenge(false);
       }
     }
 
     loadChallenge();
   }, [challengeId, user, navigate]);
 
-  // Handle prompt submission
-  const handlePromptSubmit = useCallback(
-    async (prompt: string) => {
-      if (!challenge || !agenticAttemptId || !user || isGenerating) return;
-
-      // Client-side validation
-      const validation = validatePrompt(prompt);
-
-      // Log validation
-      logPromptValidation(
-        user.id,
-        agenticAttemptId,
-        prompt,
-        validation.valid ? "passed" : "blocked",
-        validation.blockedReason || null,
-        validation.riskLevel || "low",
-      );
-
-      if (!validation.valid) {
-        setGenerationError(getSafeBlockMessage(validation.blockedReason || ""));
-        return;
-      }
-
-      setIsGenerating(true);
-      setGenerationError(null);
-      setCurrentReasoning("");
-
-      try {
-        const result = await submitPrompt({
-          attemptId: agenticAttemptId,
-          prompt: validation.sanitized,
-          conversationHistory: promptHistory,
-          challengeContext: {
-            title: challenge.title,
-            description: challenge.description,
-            testCases: challenge.test_cases,
-            language:
-              challenge.language_id === 93 ? "javascript" : "typescript",
-            starterCode: challenge.starter_code,
-          },
-        });
-
-        if (!result.success) {
-          if (result.error.blockedReason) {
-            setGenerationError(result.error.blockedReason);
-          } else {
-            setGenerationError(result.error.error);
-          }
-          return;
-        }
-
-        const {
-          turnId,
-          generatedCode,
-          agentReasoning,
-          iterationNumber,
-          timestamp,
-        } = result.data;
-
-        // Create the turn record
-        const newTurn: PromptTurn = {
-          id: turnId,
-          prompt: validation.sanitized,
-          generatedCode,
-          agentReasoning,
-          timestamp,
-          iterationNumber,
-        };
-
-        // Update local state
-        setCurrentCode(generatedCode);
-        setCurrentReasoning(agentReasoning);
-        setPromptHistory((prev) => [...prev, newTurn]);
-        setIterationsUsed(iterationNumber);
-        setTestResults([]); // Clear previous test results
-
-        // Persist to database
-        await addPromptTurn(agenticAttemptId, newTurn);
-      } catch (err) {
-        console.error("Generation error:", err);
-        setGenerationError("Failed to generate code. Please try again.");
-      } finally {
-        setIsGenerating(false);
-      }
-    },
-    [challenge, agenticAttemptId, user, isGenerating, promptHistory],
-  );
-
-  // Run tests
-  const handleRunTests = useCallback(async () => {
-    if (!challenge || !currentCode) return;
-
-    setIsRunning(true);
-    setTestResults([]);
-
-    try {
-      const results = await runTestCases(
-        currentCode,
-        challenge.language_id,
-        challenge.test_cases,
-      );
-      setTestResults(results);
-
-      const passed = results.every((r) => r.passed);
-      setAllPassed(passed);
-
-      if (passed) {
-        setIsComplete(true);
-      }
-    } catch (err) {
-      console.error("Error running tests:", err);
-    } finally {
-      setIsRunning(false);
-    }
-  }, [challenge, currentCode]);
-
-  // Handle final submission (after tests pass)
-  const handleFinalSubmit = useCallback(async () => {
-    if (!challengeAttemptId || !agenticAttemptId || !challenge) return;
-
-    // Save tagged techniques
-    await tagTechniques(agenticAttemptId, selectedTechniques);
-
-    // Evaluate prompts
-    const evaluation = await evaluatePrompts(
-      promptHistory,
-      selectedTechniques,
-      allPassed,
-      maxIterations,
-      challenge.reference_prompt || undefined,
-    );
-
-    if (evaluation) {
-      setEvaluationResult({
-        scores: evaluation.scores,
-        aiFeedback: evaluation.aiFeedback,
-        heuristics: {
-          techniquesDetected: evaluation.heuristics.techniquesDetected,
-        },
-        referencePrompt: evaluation.referencePrompt,
-      });
-
-      // Save scores
-      await savePromptScores(agenticAttemptId, evaluation);
-    }
-
-    // Complete the attempt
-    const passed = testResults.filter((r) => r.passed).length;
-    const total = testResults.length;
-    await completeAgenticAttempt(
-      challengeAttemptId,
-      agenticAttemptId,
-      passed,
-      total,
-      currentCode,
-    );
-
-    setShowScoreCard(true);
-  }, [
-    challengeAttemptId,
-    agenticAttemptId,
-    challenge,
-    selectedTechniques,
-    promptHistory,
-    allPassed,
-    maxIterations,
-    testResults,
-    currentCode,
-  ]);
-
-  // Handle giving up / exhausted iterations
-  const handleAbandon = useCallback(async () => {
-    if (!challengeAttemptId || !agenticAttemptId || !challenge) return;
-
-    // Still evaluate the prompts for learning
-    const evaluation = await evaluatePrompts(
-      promptHistory,
-      selectedTechniques,
-      false, // tests didn't pass
-      maxIterations,
-      challenge.reference_prompt || undefined,
-    );
-
-    if (evaluation) {
-      setEvaluationResult({
-        scores: evaluation.scores,
-        aiFeedback: evaluation.aiFeedback,
-        heuristics: {
-          techniquesDetected: evaluation.heuristics.techniquesDetected,
-        },
-        referencePrompt: evaluation.referencePrompt,
-      });
-
-      await savePromptScores(agenticAttemptId, evaluation);
-    }
-
-    await abandonAgenticAttempt(challengeAttemptId, currentCode);
-    setShowScoreCard(true);
-  }, [
-    challengeAttemptId,
-    agenticAttemptId,
-    challenge,
-    promptHistory,
-    selectedTechniques,
-    maxIterations,
-    currentCode,
-  ]);
-
-  // Check if iterations exhausted
-  const iterationsExhausted = iterationsUsed >= maxIterations;
-
   // Get language for editor
   const language = challenge
     ? LANGUAGES.find((l) => l.id === challenge.language_id)
-    : LANGUAGES.find((l) => l.id === 93); // Default to JavaScript
+    : LANGUAGES.find((l) => l.id === 93);
 
   // Loading state
-  if (loading) {
+  const isLoading =
+    loadingChallenge || state === "loading" || state === "restoring";
+
+  if (isLoading) {
     return (
       <PageLayout>
         <div className="agentic-challenge-page">
@@ -395,13 +130,13 @@ export function AgenticChallengePage() {
   }
 
   // Error state
-  if (error || !challenge) {
+  if (loadError || error || !challenge) {
     return (
       <PageLayout>
         <div className="agentic-challenge-page">
           <div className="challenge-error">
             <h2>Challenge Not Available</h2>
-            <p>{error || "Challenge not found"}</p>
+            <p>{loadError || error || "Challenge not found"}</p>
             <button onClick={() => navigate(-1)}>Go Back</button>
           </div>
         </div>
@@ -424,6 +159,19 @@ export function AgenticChallengePage() {
             </div>
           </div>
           <div className="header-right">
+            {/* Hints Status */}
+            {challenge.hints && challenge.hints.length > 0 && (
+              <div className="hints-status">
+                <span className="hints-label">
+                  💡 Hints: {hintsUsed}/{challenge.hints_allowed}
+                </span>
+                {hintsRemaining > 0 && !isComplete && (
+                  <button className="hint-btn" onClick={requestHint}>
+                    Use Hint (-{challenge.hint_penalty} pts)
+                  </button>
+                )}
+              </div>
+            )}
             <div className="iteration-counter">
               <span className="iteration-label">Iterations</span>
               <span
@@ -434,6 +182,21 @@ export function AgenticChallengePage() {
             </div>
           </div>
         </header>
+
+        {/* Revealed Hints Panel */}
+        {revealedHints.length > 0 && (
+          <div className="hints-panel">
+            <div className="hints-panel-header">💡 Hints</div>
+            <div className="hints-list">
+              {revealedHints.map((hint, index) => (
+                <div key={index} className="hint-item">
+                  <span className="hint-number">{index + 1}.</span>
+                  <p>{hint}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="agentic-challenge-content">
@@ -447,7 +210,7 @@ export function AgenticChallengePage() {
 
             {/* Prompt Input */}
             <PromptInput
-              onSubmit={handlePromptSubmit}
+              onSubmit={submitPrompt}
               isLoading={isGenerating}
               disabled={isComplete || iterationsExhausted}
               iterationsUsed={iterationsUsed}
@@ -494,14 +257,14 @@ export function AgenticChallengePage() {
               {isComplete ? (
                 <button
                   className="submit-button primary"
-                  onClick={handleFinalSubmit}
+                  onClick={completeAttempt}
                 >
                   Complete Challenge
                 </button>
               ) : iterationsExhausted ? (
                 <button
                   className="submit-button secondary"
-                  onClick={handleAbandon}
+                  onClick={abandonAttempt}
                 >
                   View Results
                 </button>
@@ -521,7 +284,7 @@ export function AgenticChallengePage() {
                 code={currentCode}
                 language={language?.monacoLanguage || "javascript"}
                 theme={monacoTheme}
-                onChange={() => {}} // Read-only, but need onChange prop
+                onChange={() => {}}
                 readOnly={true}
               />
             </div>
@@ -534,11 +297,11 @@ export function AgenticChallengePage() {
                 hiddenPassed={0}
                 hiddenTotal={0}
                 isRunning={isRunning}
-                allPassed={allPassed}
+                allPassed={allTestsPassed}
               />
               <button
                 className="run-tests-button"
-                onClick={handleRunTests}
+                onClick={runTests}
                 disabled={
                   isRunning ||
                   !currentCode ||
@@ -558,7 +321,7 @@ export function AgenticChallengePage() {
             aiFeedback={evaluationResult.aiFeedback}
             referencePrompt={evaluationResult.referencePrompt}
             techniquesTags={selectedTechniques}
-            testsPassed={allPassed}
+            testsPassed={allTestsPassed}
             onClose={() => {
               setShowScoreCard(false);
               navigate(-1);

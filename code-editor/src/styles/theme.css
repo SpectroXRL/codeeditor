@@ -49,6 +49,12 @@
   --scrollbar-track: #2b3035;
   --scrollbar-thumb: #495057;
   --scrollbar-thumb-hover: #6c757d;
+
+  /* Missing variables used across components */
+  --border-color: #495057;
+  --bg-hover: #3d4349;
+  --text-tertiary: #868e96;
+  --accent-bg: rgba(13, 110, 253, 0.15);
 }
 
 /* Light Mode */
@@ -94,6 +100,12 @@
   --scrollbar-track: #e9ecef;
   --scrollbar-thumb: #adb5bd;
   --scrollbar-thumb-hover: #6c757d;
+
+  /* Missing variables used across components */
+  --border-color: #dee2e6;
+  --bg-hover: #f3f4f6;
+  --text-tertiary: #9ca3af;
+  --accent-bg: rgba(13, 110, 253, 0.1);
 }
 
 /* Global scrollbar styling */

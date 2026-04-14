@@ -3,7 +3,7 @@
  * Displays the AI's thinking process for educational purposes
  */
 
-import { useState } from "react";
+import { Panel } from "../shared";
 import "./AgentReasoningPanel.css";
 
 interface AgentReasoningPanelProps {
@@ -17,47 +17,39 @@ export function AgentReasoningPanel({
   isLoading = false,
   iterationNumber,
 }: AgentReasoningPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
-
   if (!reasoning && !isLoading) {
     return null;
   }
 
   return (
-    <div className="reasoning-panel">
-      <button
-        className="reasoning-panel-header"
-        onClick={() => setIsExpanded(!isExpanded)}
-        aria-expanded={isExpanded}
-      >
-        <div className="reasoning-panel-title">
-          <span className="reasoning-icon">💭</span>
-          <span>Agent's Reasoning</span>
-          {iterationNumber && (
-            <span className="iteration-indicator">
-              Iteration {iterationNumber}
-            </span>
-          )}
-        </div>
-        <span className={`expand-icon ${isExpanded ? "expanded" : ""}`}>▼</span>
-      </button>
-
-      {isExpanded && (
-        <div className="reasoning-panel-content">
-          {isLoading ? (
-            <div className="reasoning-loading">
-              <div className="thinking-animation">
-                <span className="dot"></span>
-                <span className="dot"></span>
-                <span className="dot"></span>
-              </div>
-              <span>Thinking...</span>
+    <Panel
+      header={{
+        title: "Agent's Reasoning",
+        icon: "💭",
+        action: iterationNumber ? (
+          <span className="iteration-indicator">
+            Iteration {iterationNumber}
+          </span>
+        ) : undefined,
+      }}
+      collapsible
+      defaultExpanded
+      className="reasoning-panel"
+    >
+      {isLoading ? (
+        <div className="reasoning-loading">
+          <div className="panel-thinking">
+            <div className="panel-thinking__dots">
+              <span className="panel-thinking__dot"></span>
+              <span className="panel-thinking__dot"></span>
+              <span className="panel-thinking__dot"></span>
             </div>
-          ) : (
-            <p className="reasoning-text">{reasoning}</p>
-          )}
+            <span>Thinking...</span>
+          </div>
         </div>
+      ) : (
+        <p className="reasoning-text">{reasoning}</p>
       )}
-    </div>
+    </Panel>
   );
 }

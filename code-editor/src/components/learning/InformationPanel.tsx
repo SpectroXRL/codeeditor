@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Content } from "../../types/database";
+import { Panel } from "../shared";
 import "./InformationPanel.css";
 
 interface InformationPanelProps {
@@ -12,37 +13,22 @@ export function InformationPanel({
   content,
   loading = false,
 }: InformationPanelProps) {
-  if (loading) {
-    return (
-      <div className="information-panel">
-        <div className="info-loading">
-          <div className="spinner"></div>
-          <p>Loading lesson...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!content) {
-    return (
-      <div className="information-panel">
-        <div className="info-empty">
-          <p>Select a lesson to begin</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="information-panel">
-      <div className="info-header">
-        <h2>{content.title}</h2>
-      </div>
+    <Panel
+      header={content ? { title: content.title } : undefined}
+      isLoading={loading}
+      loadingMessage="Loading lesson..."
+      isEmpty={!content}
+      emptyMessage="Select a lesson to begin"
+      className="information-panel"
+    >
       <div className="info-content markdown-body">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {content.information}
-        </ReactMarkdown>
+        {content && (
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {content.information}
+          </ReactMarkdown>
+        )}
       </div>
-    </div>
+    </Panel>
   );
 }
