@@ -4,23 +4,23 @@
  * Users write prompts, AI generates/refines code cumulatively
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { PageLayout } from '../components/layout/PageLayout';
-import { CodeEditor } from '../components/CodeEditor';
-import { PromptScoreCard } from '../components/learning/PromptScoreCard';
-import { useAuth } from '../context/useAuth';
-import { useTheme } from '../context/ThemeContext';
-import { getAgenticLessonWithTopic } from '../services/agenticLessons';
-import { runCode } from '../services/judge0';
-import { useProgressActions } from '../stores/progressSelectors';
-import type { Topic, SubTopic, Content } from '../types/database';
-import type { ApiPromptScores, PromptTechnique } from '../types/database';
-import './AgenticPracticePage.css';
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { PageLayout } from "../components/layout/PageLayout";
+import { CodeEditor } from "../components/CodeEditor";
+import { PromptScoreCard } from "../components/learning/PromptScoreCard";
+import { useAuth } from "../context/useAuth";
+import { useTheme } from "../context/ThemeContext";
+import { getAgenticLessonWithTopic } from "../services/agenticLessons";
+import { runCode } from "../services/judge0";
+import { useProgressActions } from "../stores/progressSelectors";
+import type { Topic, SubTopic, Content } from "../types/database";
+import type { ApiPromptScores, PromptTechnique } from "../types/database";
+import "./AgenticPracticePage.css";
 
 interface ConversationTurn {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   code?: string;
   reasoning?: string;
@@ -44,12 +44,14 @@ export function AgenticPracticePage() {
 
   // Chat state
   const [conversation, setConversation] = useState<ConversationTurn[]>([]);
-  const [promptInput, setPromptInput] = useState('');
+  const [promptInput, setPromptInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Code state (cumulative)
-  const [currentCode, setCurrentCode] = useState('// Your generated code will appear here\n');
+  const [currentCode, setCurrentCode] = useState(
+    "// Your generated code will appear here\n",
+  );
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
   const [outputError, setOutputError] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export function AgenticPracticePage() {
   useEffect(() => {
     async function loadLesson() {
       if (!lessonId) {
-        navigate('/agentic');
+        navigate("/agentic");
         return;
       }
 
@@ -77,7 +79,7 @@ export function AgenticPracticePage() {
       try {
         const data = await getAgenticLessonWithTopic(lessonId);
         if (!data) {
-          setError('Lesson not found');
+          setError("Lesson not found");
           setLoading(false);
           return;
         }
@@ -91,8 +93,8 @@ export function AgenticPracticePage() {
           setCurrentCode(data.content.starter_code);
         }
       } catch (err) {
-        console.error('Error loading lesson:', err);
-        setError('Failed to load lesson');
+        console.error("Error loading lesson:", err);
+        setError("Failed to load lesson");
       } finally {
         setLoading(false);
       }
@@ -103,7 +105,7 @@ export function AgenticPracticePage() {
 
   // Scroll to bottom of chat when new messages arrive
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);
 
   // Handle prompt submission
@@ -111,40 +113,41 @@ export function AgenticPracticePage() {
     if (!promptInput.trim() || isGenerating) return;
 
     const userPrompt = promptInput.trim();
-    setPromptInput('');
+    setPromptInput("");
 
     // Add user message to conversation
     const userTurn: ConversationTurn = {
       id: crypto.randomUUID(),
-      role: 'user',
+      role: "user",
       content: userPrompt,
       timestamp: new Date(),
     };
-    setConversation(prev => [...prev, userTurn]);
+    setConversation((prev) => [...prev, userTurn]);
     setIsGenerating(true);
 
     try {
       // Build context from conversation history
-      const conversationHistory = conversation.map(turn => ({
+      const conversationHistory = conversation.map((turn) => ({
         role: turn.role,
-        content: turn.role === 'user' ? turn.content : (turn.reasoning || turn.content),
+        content:
+          turn.role === "user" ? turn.content : turn.reasoning || turn.content,
       }));
 
       // Call generation API
-      const response = await fetch('/api/agentic-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/agentic-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: userPrompt,
           currentCode,
           conversationHistory,
-          lessonContext: content?.information || '',
+          lessonContext: content?.information || "",
           userId: user?.id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate code');
+        throw new Error("Failed to generate code");
       }
 
       const result = await response.json();
@@ -157,25 +160,25 @@ export function AgenticPracticePage() {
       // Add assistant response to conversation
       const assistantTurn: ConversationTurn = {
         id: crypto.randomUUID(),
-        role: 'assistant',
-        content: result.message || 'Code updated successfully.',
+        role: "assistant",
+        content: result.message || "Code updated successfully.",
         code: result.generatedCode,
         reasoning: result.reasoning,
         feedback: result.feedback,
         timestamp: new Date(),
       };
-      setConversation(prev => [...prev, assistantTurn]);
-
+      setConversation((prev) => [...prev, assistantTurn]);
     } catch (err) {
-      console.error('Generation error:', err);
+      console.error("Generation error:", err);
       // Add error message to conversation
       const errorTurn: ConversationTurn = {
         id: crypto.randomUUID(),
-        role: 'assistant',
-        content: 'Sorry, I encountered an error generating code. Please try again.',
+        role: "assistant",
+        content:
+          "Sorry, I encountered an error generating code. Please try again.",
         timestamp: new Date(),
       };
-      setConversation(prev => [...prev, errorTurn]);
+      setConversation((prev) => [...prev, errorTurn]);
     } finally {
       setIsGenerating(false);
     }
@@ -199,23 +202,26 @@ export function AgenticPracticePage() {
       } else if (result.compile_output) {
         setOutputError(result.compile_output);
       } else {
-        setOutput(result.stdout || '(No output)');
+        setOutput(result.stdout || "(No output)");
       }
     } catch (err) {
-      console.error('Execution error:', err);
-      setOutputError('Failed to execute code');
+      console.error("Execution error:", err);
+      setOutputError("Failed to execute code");
     } finally {
       setIsRunning(false);
     }
   }, [currentCode, content, isRunning]);
 
   // Handle Enter key in prompt input
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
-      handleSubmitPrompt();
-    }
-  }, [handleSubmitPrompt]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleSubmitPrompt();
+      }
+    },
+    [handleSubmitPrompt],
+  );
 
   // Handle Mark Complete
   const handleMarkComplete = useCallback(async () => {
@@ -226,24 +232,28 @@ export function AgenticPracticePage() {
     try {
       // Build prompt history for evaluation
       const promptHistory = conversation
-        .filter(turn => turn.role === 'user')
+        .filter((turn) => turn.role === "user")
         .map((turn, index) => ({
           id: turn.id,
           prompt: turn.content,
-          generatedCode: conversation.find(
-            (t, i) => t.role === 'assistant' && i > conversation.indexOf(turn)
-          )?.code || '',
-          agentReasoning: conversation.find(
-            (t, i) => t.role === 'assistant' && i > conversation.indexOf(turn)
-          )?.reasoning || '',
+          generatedCode:
+            conversation.find(
+              (t, i) =>
+                t.role === "assistant" && i > conversation.indexOf(turn),
+            )?.code || "",
+          agentReasoning:
+            conversation.find(
+              (t, i) =>
+                t.role === "assistant" && i > conversation.indexOf(turn),
+            )?.reasoning || "",
           timestamp: turn.timestamp.toISOString(),
           iterationNumber: index + 1,
         }));
 
       // Call evaluation API
-      const response = await fetch('/api/evaluate-prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/evaluate-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptHistory,
           techniquesTags: [],
@@ -264,12 +274,13 @@ export function AgenticPracticePage() {
         setEvaluationResult({
           scores: {
             clarity: 75,
-            efficiency: Math.max(20, 100 - (conversation.length * 10)),
+            efficiency: Math.max(20, 100 - conversation.length * 10),
             context: 70,
             technique: 60,
             final: 70,
           },
-          aiFeedback: 'Great job practicing prompt engineering! Keep refining your prompts for better results.',
+          aiFeedback:
+            "Great job practicing prompt engineering! Keep refining your prompts for better results.",
           techniques: [],
         });
       }
@@ -281,7 +292,7 @@ export function AgenticPracticePage() {
 
       setShowCompletion(true);
     } catch (err) {
-      console.error('Evaluation error:', err);
+      console.error("Evaluation error:", err);
       // Show completion with default scores
       setEvaluationResult({
         scores: {
@@ -291,7 +302,8 @@ export function AgenticPracticePage() {
           technique: 70,
           final: 70,
         },
-        aiFeedback: 'Lesson completed! Continue practicing to improve your prompt engineering skills.',
+        aiFeedback:
+          "Lesson completed! Continue practicing to improve your prompt engineering skills.",
         techniques: [],
       });
       setShowCompletion(true);
@@ -303,7 +315,7 @@ export function AgenticPracticePage() {
   // Handle completion close
   const handleCloseCompletion = useCallback(() => {
     setShowCompletion(false);
-    navigate('/agentic');
+    navigate("/agentic");
   }, [navigate]);
 
   // Loading state
@@ -327,8 +339,10 @@ export function AgenticPracticePage() {
         <div className="agentic-practice-page">
           <div className="error-state">
             <h2>Lesson Not Available</h2>
-            <p>{error || 'Lesson not found'}</p>
-            <Link to="/agentic" className="back-link">← Back to Curriculum</Link>
+            <p>{error || "Lesson not found"}</p>
+            <Link to="/agentic" className="back-link">
+              ← Back to Curriculum
+            </Link>
           </div>
         </div>
       </PageLayout>
@@ -376,27 +390,29 @@ export function AgenticPracticePage() {
                 <div className="chat-empty">
                   <div className="empty-icon">🤖</div>
                   <p>Start by describing what code you want to generate.</p>
-                  <p className="hint">Be specific about inputs, outputs, and behavior.</p>
+                  <p className="hint">
+                    Be specific about inputs, outputs, and behavior.
+                  </p>
                 </div>
               ) : (
-                conversation.map(turn => (
+                conversation.map((turn) => (
                   <div key={turn.id} className={`chat-turn ${turn.role}`}>
                     <div className="turn-header">
                       <span className="turn-role">
-                        {turn.role === 'user' ? '👤 You' : '🤖 AI'}
+                        {turn.role === "user" ? "👤 You" : "🤖 AI"}
                       </span>
                       <span className="turn-time">
                         {turn.timestamp.toLocaleTimeString()}
                       </span>
                     </div>
                     <div className="turn-content">{turn.content}</div>
-                    
+
                     {turn.reasoning && (
                       <div className="turn-reasoning">
                         <strong>Reasoning:</strong> {turn.reasoning}
                       </div>
                     )}
-                    
+
                     {turn.feedback && (
                       <div className="turn-feedback">
                         <span className="feedback-icon">💡</span>
@@ -414,7 +430,9 @@ export function AgenticPracticePage() {
                   </div>
                   <div className="turn-content">
                     <span className="typing-indicator">
-                      <span></span><span></span><span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
                     </span>
                     Generating code...
                   </div>
@@ -439,7 +457,7 @@ export function AgenticPracticePage() {
                 disabled={isGenerating || !promptInput.trim()}
                 className="send-button"
               >
-                {isGenerating ? 'Generating...' : 'Send'}
+                {isGenerating ? "Generating..." : "Send"}
               </button>
             </div>
           </div>
@@ -453,7 +471,7 @@ export function AgenticPracticePage() {
                 disabled={isRunning || !currentCode.trim()}
                 className="run-button"
               >
-                {isRunning ? '⏳ Running...' : '▶️ Run Code'}
+                {isRunning ? "⏳ Running..." : "▶️ Run Code"}
               </button>
             </div>
 
@@ -469,14 +487,21 @@ export function AgenticPracticePage() {
 
             {/* Output Panel */}
             {(output || outputError) && (
-              <div className={`output-panel ${outputError ? 'error' : 'success'}`}>
+              <div
+                className={`output-panel ${outputError ? "error" : "success"}`}
+              >
                 <div className="output-header">
-                  <span>{outputError ? '❌ Error' : '✅ Output'}</span>
-                  <button onClick={() => { setOutput(null); setOutputError(null); }}>×</button>
+                  <span>{outputError ? "❌ Error" : "✅ Output"}</span>
+                  <button
+                    onClick={() => {
+                      setOutput(null);
+                      setOutputError(null);
+                    }}
+                  >
+                    ×
+                  </button>
                 </div>
-                <pre className="output-content">
-                  {outputError || output}
-                </pre>
+                <pre className="output-content">{outputError || output}</pre>
               </div>
             )}
           </div>
@@ -486,14 +511,16 @@ export function AgenticPracticePage() {
         {conversation.length > 0 && (
           <div className="practice-action-bar">
             <div className="action-bar-info">
-              <span className="prompt-count">{Math.ceil(conversation.length / 2)} prompts submitted</span>
+              <span className="prompt-count">
+                {Math.ceil(conversation.length / 2)} prompts submitted
+              </span>
             </div>
             <button
               className="mark-complete-button"
               onClick={handleMarkComplete}
               disabled={isEvaluating || conversation.length === 0}
             >
-              {isEvaluating ? '⏳ Evaluating...' : '✅ Mark Complete'}
+              {isEvaluating ? "⏳ Evaluating..." : "✅ Mark Complete"}
             </button>
           </div>
         )}

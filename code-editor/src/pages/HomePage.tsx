@@ -16,7 +16,7 @@ export function HomePage() {
         const data = await getSubjects();
         // Filter out agentic engineering - it has its own dedicated section
         const languageSubjects = data.filter(
-          (s) => s.slug !== "agentic-engineering"
+          (s) => s.slug !== "agentic-engineering",
         );
         setSubjects(languageSubjects);
       } catch (err) {

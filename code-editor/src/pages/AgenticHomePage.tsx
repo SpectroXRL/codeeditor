@@ -4,13 +4,16 @@
  * Shows topics and lessons in a card-based layout
  */
 
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { PageLayout } from '../components/layout/PageLayout';
-import { useAuth } from '../context/useAuth';
-import { getAgenticCurriculum, type TopicWithLessons } from '../services/agenticLessons';
-import { useProgressStore } from '../stores/progressStore';
-import './AgenticHomePage.css';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { PageLayout } from "../components/layout/PageLayout";
+import { useAuth } from "../context/useAuth";
+import {
+  getAgenticCurriculum,
+  type TopicWithLessons,
+} from "../services/agenticLessons";
+import { useProgressStore } from "../stores/progressStore";
+import "./AgenticHomePage.css";
 
 export function AgenticHomePage() {
   const { user } = useAuth();
@@ -24,7 +27,7 @@ export function AgenticHomePage() {
 
   // Check if a lesson is completed
   const isLessonCompleted = (lessonId: string) => {
-    return progress[lessonId]?.status === 'completed';
+    return progress[lessonId]?.status === "completed";
   };
 
   // Load curriculum
@@ -34,7 +37,9 @@ export function AgenticHomePage() {
         const data = await getAgenticCurriculum();
         setCurriculum(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load curriculum');
+        setError(
+          err instanceof Error ? err.message : "Failed to load curriculum",
+        );
       } finally {
         setLoading(false);
       }
@@ -58,11 +63,13 @@ export function AgenticHomePage() {
           <div className="hero-icon">🤖</div>
           <h1>Prompt Engineering</h1>
           <p>
-            Learn to write effective prompts that generate working code. 
-            Master techniques like zero-shot, few-shot, and chain-of-thought prompting.
+            Learn to write effective prompts that generate working code. Master
+            techniques like zero-shot, few-shot, and chain-of-thought prompting.
           </p>
           {!user && (
-            <p className="hero-cta">Sign in to track your progress and save your work.</p>
+            <p className="hero-cta">
+              Sign in to track your progress and save your work.
+            </p>
           )}
         </section>
 
@@ -78,7 +85,9 @@ export function AgenticHomePage() {
           {error && (
             <div className="error-state">
               <p>{error}</p>
-              <button onClick={() => window.location.reload()}>Try Again</button>
+              <button onClick={() => window.location.reload()}>
+                Try Again
+              </button>
             </div>
           )}
 
@@ -96,7 +105,7 @@ export function AgenticHomePage() {
                     <span className="topic-number">{topicIndex + 1}</span>
                     <h2>{topic.name}</h2>
                   </div>
-                  
+
                   <div className="lessons-list">
                     {topic.lessons.length === 0 ? (
                       <p className="no-lessons">No lessons yet</p>
@@ -107,7 +116,7 @@ export function AgenticHomePage() {
                           <Link
                             key={lesson.id}
                             to={`/agentic/practice/${lesson.id}`}
-                            className={`lesson-item ${completed ? 'completed' : ''}`}
+                            className={`lesson-item ${completed ? "completed" : ""}`}
                           >
                             <span className="lesson-number">
                               {topicIndex + 1}.{lessonIndex + 1}
@@ -136,22 +145,34 @@ export function AgenticHomePage() {
             <div className="info-card">
               <div className="info-icon">💬</div>
               <h3>Write Prompts</h3>
-              <p>Describe the code you need in natural language. The AI will generate code based on your prompt.</p>
+              <p>
+                Describe the code you need in natural language. The AI will
+                generate code based on your prompt.
+              </p>
             </div>
             <div className="info-card">
               <div className="info-icon">🔄</div>
               <h3>Iterate & Refine</h3>
-              <p>Refine your prompts to improve the generated code. Watch as the code evolves with each iteration.</p>
+              <p>
+                Refine your prompts to improve the generated code. Watch as the
+                code evolves with each iteration.
+              </p>
             </div>
             <div className="info-card">
               <div className="info-icon">▶️</div>
               <h3>Run & Test</h3>
-              <p>Execute the generated code to see it in action. Verify it works as expected.</p>
+              <p>
+                Execute the generated code to see it in action. Verify it works
+                as expected.
+              </p>
             </div>
             <div className="info-card">
               <div className="info-icon">📊</div>
               <h3>Get Feedback</h3>
-              <p>Receive scores and feedback on your prompting techniques. Learn what makes prompts effective.</p>
+              <p>
+                Receive scores and feedback on your prompting techniques. Learn
+                what makes prompts effective.
+              </p>
             </div>
           </div>
         </section>
