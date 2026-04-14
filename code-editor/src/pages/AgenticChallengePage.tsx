@@ -529,9 +529,12 @@ export function AgenticChallengePage() {
             {/* Test Cases */}
             <div className="tests-container">
               <TestCasesPanel
-                testCases={challenge.test_cases}
-                results={testResults}
+                visibleTests={challenge.test_cases}
+                visibleResults={testResults}
+                hiddenPassed={0}
+                hiddenTotal={0}
                 isRunning={isRunning}
+                allPassed={allPassed}
               />
               <button
                 className="run-tests-button"

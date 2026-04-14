@@ -14,7 +14,7 @@ export interface ValidationResult {
 }
 
 // Prompt injection patterns to detect
-const PROMPT_INJECTION_PATTERNS: Array<{ pattern: RegExp; reason: string; risk: 'medium' | 'high' }> = [
+const PROMPT_INJECTION_PATTERNS: Array<{ pattern: RegExp; reason: string; risk: 'low' | 'medium' | 'high' }> = [
   // Direct instruction override attempts
   { 
     pattern: /ignore\s+(all\s+)?(previous|prior|above|earlier)\s+(instructions?|prompts?|rules?|guidelines?)/i,

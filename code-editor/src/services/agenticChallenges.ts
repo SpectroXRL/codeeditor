@@ -44,8 +44,17 @@ interface GenerateCodeError {
   iterationsRemaining?: number;
 }
 
+// API response scores shape (differs from database PromptScores)
+interface ApiPromptScores {
+  clarity: number;
+  efficiency: number;
+  context: number;
+  technique: number;
+  final: number;
+}
+
 interface EvaluatePromptResponse {
-  scores: PromptScores;
+  scores: ApiPromptScores;
   aiFeedback: string;
   heuristics: {
     totalIterations: number;
@@ -241,7 +250,7 @@ export async function tagTechniques(
  */
 export async function completeAgenticAttempt(
   challengeAttemptId: string,
-  agenticAttemptId: string,
+  _agenticAttemptId: string,
   testsPassed: number,
   testsTotal: number,
   finalCode: string
