@@ -134,6 +134,12 @@ export function ChallengePage() {
           return;
         }
 
+        // Redirect to agentic challenge page if this is an agentic challenge
+        if (challengeData.challenge_mode === "agentic") {
+          navigate(`/agentic-challenge/${challengeData.id}`, { replace: true });
+          return;
+        }
+
         setChallenge(challengeData);
         setCode(challengeData.starter_code);
 
