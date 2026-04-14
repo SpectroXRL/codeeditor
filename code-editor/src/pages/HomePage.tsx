@@ -14,7 +14,11 @@ export function HomePage() {
     async function loadSubjects() {
       try {
         const data = await getSubjects();
-        setSubjects(data);
+        // Filter out agentic engineering - it has its own dedicated section
+        const languageSubjects = data.filter(
+          (s) => s.slug !== "agentic-engineering"
+        );
+        setSubjects(languageSubjects);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load subjects",
