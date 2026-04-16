@@ -4,7 +4,7 @@
  * Shows topics and lessons in a card-based layout
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { PageLayout } from "../components/layout/PageLayout";
 import { useAuth } from "../context/useAuth";
@@ -13,6 +13,7 @@ import {
   type TopicWithLessons,
 } from "../services/agenticLessons";
 import { useProgressStore } from "../stores/progressStore";
+import type { LessonType } from "../types/database";
 import "./AgenticHomePage.css";
 
 export function AgenticHomePage() {
@@ -28,6 +29,32 @@ export function AgenticHomePage() {
   // Check if a lesson is completed
   const isLessonCompleted = (lessonId: string) => {
     return progress[lessonId]?.status === "completed";
+  };
+
+  // Check if prompt engineering prerequisites are completed
+  // Topics 1-4 are Prompt Engineering, Topic 5+ is Error Recovery
+  const isPromptEngineeringComplete = useMemo(() => {
+    // Get all lessons from topics 1-4 (Foundations, Core Techniques, Context Management, Iterative Refinement)
+    const promptEngineeringTopics = curriculum.slice(0, 4);
+    const allLessons = promptEngineeringTopics.flatMap((t) => t.lessons);
+
+    if (allLessons.length === 0) return false;
+
+    // Check if all lessons are completed
+    return allLessons.every((lesson) => isLessonCompleted(lesson.id));
+  }, [curriculum, progress]);
+
+  // Check if a topic is error recovery (has lesson_type 'error_recovery')
+  const isErrorRecoveryTopic = (
+    topic: TopicWithLessons,
+    topicIndex: number,
+  ): boolean => {
+    // Topics 5+ are error recovery, or check lesson_type if available
+    if (topicIndex >= 4) return true;
+    return topic.lessons.some(
+      (lesson: { lesson_type?: LessonType }) =>
+        lesson.lesson_type === "error_recovery",
+    );
   };
 
   // Load curriculum
@@ -99,41 +126,64 @@ export function AgenticHomePage() {
 
           {!loading && !error && curriculum.length > 0 && (
             <div className="curriculum-grid">
-              {curriculum.map((topic, topicIndex) => (
-                <div key={topic.id} className="topic-card">
-                  <div className="topic-header">
-                    <span className="topic-number">{topicIndex + 1}</span>
-                    <h2>{topic.name}</h2>
-                  </div>
+              {curriculum.map((topic, topicIndex) => {
+                const isErrorRecovery = isErrorRecoveryTopic(topic, topicIndex);
+                const needsPrerequisite =
+                  isErrorRecovery && !isPromptEngineeringComplete;
 
-                  <div className="lessons-list">
-                    {topic.lessons.length === 0 ? (
-                      <p className="no-lessons">No lessons yet</p>
-                    ) : (
-                      topic.lessons.map((lesson, lessonIndex) => {
-                        const completed = isLessonCompleted(lesson.id);
-                        return (
-                          <Link
-                            key={lesson.id}
-                            to={`/agentic/practice/${lesson.id}`}
-                            className={`lesson-item ${completed ? "completed" : ""}`}
-                          >
-                            <span className="lesson-number">
-                              {topicIndex + 1}.{lessonIndex + 1}
-                            </span>
-                            <span className="lesson-name">{lesson.name}</span>
-                            {completed ? (
-                              <span className="lesson-check">✓</span>
-                            ) : (
-                              <span className="lesson-arrow">→</span>
-                            )}
-                          </Link>
-                        );
-                      })
+                return (
+                  <div
+                    key={topic.id}
+                    className={`topic-card ${isErrorRecovery ? "error-recovery" : ""} ${needsPrerequisite ? "needs-prerequisite" : ""}`}
+                  >
+                    <div className="topic-header">
+                      <span className="topic-number">{topicIndex + 1}</span>
+                      <h2>{topic.name}</h2>
+                      {isErrorRecovery && (
+                        <span className="topic-badge error-recovery-badge">
+                          🐛 Debug
+                        </span>
+                      )}
+                    </div>
+
+                    {needsPrerequisite && (
+                      <div className="prerequisite-notice">
+                        <span className="lock-icon">🔒</span>
+                        <span>
+                          Complete Prompt Engineering first for best results
+                        </span>
+                      </div>
                     )}
+
+                    <div className="lessons-list">
+                      {topic.lessons.length === 0 ? (
+                        <p className="no-lessons">No lessons yet</p>
+                      ) : (
+                        topic.lessons.map((lesson, lessonIndex) => {
+                          const completed = isLessonCompleted(lesson.id);
+                          return (
+                            <Link
+                              key={lesson.id}
+                              to={`/agentic/practice/${lesson.id}`}
+                              className={`lesson-item ${completed ? "completed" : ""}`}
+                            >
+                              <span className="lesson-number">
+                                {topicIndex + 1}.{lessonIndex + 1}
+                              </span>
+                              <span className="lesson-name">{lesson.name}</span>
+                              {completed ? (
+                                <span className="lesson-check">✓</span>
+                              ) : (
+                                <span className="lesson-arrow">→</span>
+                              )}
+                            </Link>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

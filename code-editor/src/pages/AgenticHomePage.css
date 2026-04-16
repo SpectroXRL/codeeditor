@@ -266,3 +266,80 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   Error Recovery Topic Styles
+   ============================================ */
+
+/* Error Recovery Topic Card */
+.topic-card.error-recovery {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.topic-card.error-recovery:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
+}
+
+.topic-card.error-recovery .topic-header {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.05));
+}
+
+.topic-card.error-recovery .topic-number {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+}
+
+/* Topic Badge */
+.topic-badge {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.topic-badge.error-recovery-badge {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Soft Prerequisite Notice */
+.prerequisite-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(234, 179, 8, 0.1);
+  border-bottom: 1px solid rgba(234, 179, 8, 0.2);
+  font-size: 12px;
+  color: #ca8a04;
+}
+
+.prerequisite-notice .lock-icon {
+  font-size: 14px;
+}
+
+.topic-card.needs-prerequisite {
+  opacity: 0.85;
+}
+
+.topic-card.needs-prerequisite:hover {
+  opacity: 1;
+}
+
+/* Error Recovery Lesson Item */
+.topic-card.error-recovery .lesson-item.completed {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.topic-card.error-recovery .lesson-item.completed:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.topic-card.error-recovery .lesson-check {
+  color: #ef4444;
+}
+
+.topic-card.error-recovery .lesson-item:hover .lesson-arrow {
+  color: #ef4444;
+}

@@ -1,0 +1,315 @@
+/* Error Recovery Score Card */
+/* Extends base PromptScoreCard styles with error-recovery specific elements */
+
+.score-card.error-recovery {
+  max-width: 560px;
+}
+
+/* Error Detection Section */
+.error-detection-section {
+  padding: 0 24px 20px;
+}
+
+.error-detection-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+}
+
+.error-type-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.error-type-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.error-type-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.comparison-arrow {
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+.error-type-badge {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.error-type-badge.syntax {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.error-type-badge.runtime {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.error-type-badge.logic {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.error-type-badge.edge_case {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.error-type-badge.performance {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.error-type-badge.correct {
+  border: 2px solid #22c55e;
+}
+
+.error-type-badge.incorrect {
+  border: 2px solid #ef4444;
+}
+
+/* Score Bar with Description */
+.score-bar-container {
+  margin-bottom: 16px;
+}
+
+.score-bar-container:last-child {
+  margin-bottom: 0;
+}
+
+.score-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.score-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.score-bar-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.score-bar-description {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.score-bar-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.score-bar-track {
+  height: 8px;
+  background: var(--bg-tertiary, rgba(0, 0, 0, 0.1));
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.score-bar-rating {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Test Diff Section */
+.test-diff-section {
+  padding: 0 24px 20px;
+}
+
+.test-diff-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.test-diff-toggle:hover {
+  background: var(--bg-hover);
+}
+
+.test-diff-wrapper {
+  margin-top: 12px;
+}
+
+.test-diff-wrapper .test-diff-panel {
+  margin-bottom: 0;
+}
+
+/* Reference Section */
+.reference-section {
+  padding: 0 24px 20px;
+}
+
+.reference-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.reference-toggle:hover {
+  background: var(--bg-hover);
+}
+
+.toggle-arrow {
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.reference-prompt {
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-color, #3b82f6);
+}
+
+.reference-intro {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.reference-text {
+  margin: 0;
+  padding: 12px;
+  background: var(--bg-tertiary, var(--bg-primary));
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+/* Feedback Section */
+.feedback-section {
+  padding: 0 24px 20px;
+}
+
+.feedback-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: var(--text-primary);
+}
+
+.feedback-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 14px;
+  border-radius: 8px;
+}
+
+/* Score Breakdown */
+.score-breakdown {
+  padding: 0 24px 20px;
+}
+
+.score-breakdown h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.score-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Action Buttons */
+.score-card-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px;
+}
+
+.action-button {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button.primary {
+  background: var(--accent-color, #3b82f6);
+  color: white;
+  border: none;
+}
+
+.action-button.primary:hover {
+  opacity: 0.9;
+}
+
+.action-button.secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.action-button.secondary:hover {
+  background: var(--bg-hover);
+}
