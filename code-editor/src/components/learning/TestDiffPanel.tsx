@@ -33,7 +33,6 @@ export function TestDiffPanel({
 
   // Create a map for easy lookup
   const beforeMap = new Map(before.map((t) => [t.input, t.passed]));
-  const afterMap = new Map(after.map((t) => [t.input, t.passed]));
 
   return (
     <div className={`test-diff-panel ${isExpanded ? "expanded" : "collapsed"}`}>
