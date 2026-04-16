@@ -16,6 +16,8 @@ import { runCode } from "../services/judge0";
 import { useProgressActions } from "../stores/progressSelectors";
 import type { Topic, SubTopic, Content } from "../types/database";
 import type { ApiPromptScores, PromptTechnique } from "../types/database";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import "./AgenticPracticePage.css";
 
 interface ConversationTurn {
@@ -370,8 +372,10 @@ export function AgenticPracticePage() {
               <span className="summary-icon">📚</span>
               <span>Lesson Information</span>
             </summary>
-            <div className="lesson-info-content">
-              <p>{content.information}</p>
+            <div className="lesson-info-content markdown-body">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {content.information}
+              </ReactMarkdown>
             </div>
           </details>
         )}
