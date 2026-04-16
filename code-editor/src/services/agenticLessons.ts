@@ -32,6 +32,7 @@ export async function getAgenticSubjectId(): Promise<string | null> {
  */
 export async function getAgenticTopics(): Promise<Topic[]> {
   const subjectId = await getAgenticSubjectId();
+  console.log('[DEBUG] getAgenticSubjectId returned:', subjectId);
   if (!subjectId) return [];
 
   const { data, error } = await supabase
@@ -39,6 +40,8 @@ export async function getAgenticTopics(): Promise<Topic[]> {
     .select('*')
     .eq('subject_id', subjectId)
     .order('order_index', { ascending: true });
+
+  console.log('[DEBUG] topics query result:', { data, error });
 
   if (error) {
     console.error('Error fetching agentic topics:', error);
@@ -132,10 +135,13 @@ export interface TopicWithLessons extends Topic {
  */
 export async function getAgenticCurriculum(): Promise<TopicWithLessons[]> {
   const topics = await getAgenticTopics();
+  console.log('[DEBUG] getAgenticTopics returned:', topics.length, 'topics');
+  console.log('[DEBUG] Topic IDs:', topics.map(t => ({ id: t.id, name: t.name })));
   
   const topicsWithLessons = await Promise.all(
     topics.map(async (topic) => {
       const lessons = await getAgenticLessons(topic.id);
+      console.log(`[DEBUG] Topic "${topic.name}" has ${lessons.length} lessons`);
       return { ...topic, lessons };
     })
   );

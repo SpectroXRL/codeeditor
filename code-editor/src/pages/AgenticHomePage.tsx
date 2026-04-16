@@ -62,6 +62,12 @@ export function AgenticHomePage() {
     async function loadCurriculum() {
       try {
         const data = await getAgenticCurriculum();
+        console.log("[DEBUG] Curriculum data:", data);
+        console.log("[DEBUG] Number of topics:", data.length);
+        console.log(
+          "[DEBUG] Topic names:",
+          data.map((t) => t.name),
+        );
         setCurriculum(data);
       } catch (err) {
         setError(
