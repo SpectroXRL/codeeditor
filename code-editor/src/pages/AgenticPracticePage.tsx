@@ -1,6 +1,6 @@
 /**
  * Agentic Practice Page
- * Two-panel layout: Chat (left) + Code (right)
+ * Three-column layout: Lesson (left) + Chat (middle) + Code (right)
  * Users write prompts, AI generates/refines code cumulatively
  */
 
@@ -9,6 +9,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { PageLayout } from "../components/layout/PageLayout";
 import { CodeEditor } from "../components/CodeEditor";
 import { PromptScoreCard } from "../components/learning/PromptScoreCard";
+import { Panel } from "../components/shared/Panel/Panel";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";
 import { getAgenticLessonWithTopic } from "../services/agenticLessons";
@@ -365,24 +366,32 @@ export function AgenticPracticePage() {
           </nav>
         </header>
 
-        {/* Lesson Info (collapsible) */}
-        {content?.information && (
-          <details className="lesson-info-panel">
-            <summary>
-              <span className="summary-icon">📚</span>
-              <span>Lesson Information</span>
-            </summary>
-            <div className="lesson-info-content markdown-body">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content.information}
-              </ReactMarkdown>
-            </div>
-          </details>
-        )}
-
-        {/* Main Two-Panel Layout */}
+        {/* Main Three-Column Layout */}
         <div className="practice-panels">
-          {/* Left Panel: Chat */}
+          {/* Left Column: Lesson Info */}
+          <div className="lesson-column">
+            <Panel
+              header={{
+                title: "Lesson Information",
+                icon: "📚",
+              }}
+              collapsible
+              defaultExpanded={false}
+              className="lesson-panel"
+            >
+              {content?.information ? (
+                <div className="lesson-info-content markdown-body">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {content.information}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="no-lesson-info">No lesson information available.</p>
+              )}
+            </Panel>
+          </div>
+
+          {/* Middle Column: Chat */}
           <div className="chat-panel">
             <div className="chat-header">
               <h3>💬 Conversation</h3>
