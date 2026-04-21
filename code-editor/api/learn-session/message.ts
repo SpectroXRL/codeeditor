@@ -3,13 +3,13 @@ import OpenAI from 'openai';
 import {
   classifyDomain,
   getDomainRefusalMessage,
-} from '../shared/domainClassifier';
-import { getRequestIdentity, checkRateLimit } from '../shared/rateLimit';
+} from '../shared/domainClassifier.js';
+import { getRequestIdentity, checkRateLimit } from '../shared/rateLimit.js';
 import {
   getSafeBlockMessage,
   validateChatMessage,
   validateCode,
-} from '../shared/validator';
+} from '../shared/validator.js';
 
 type SessionStage =
   | 'idle'
