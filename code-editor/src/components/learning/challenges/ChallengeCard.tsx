@@ -5,13 +5,13 @@ import {
   getChallengeForSubject,
   isSubjectChallengeUnlocked,
   getUserBestAttempt,
-} from "../../services/challenges";
+} from "../../../services/challenges";
 import {
   useCompletedCount,
   useIsTopicComplete,
-} from "../../stores/progressSelectors";
-import type { Challenge, ChallengeAttempt } from "../../types/database";
-import "./ChallengeCard.css";
+} from "../../../stores/progressSelectors";
+import type { Challenge, ChallengeAttempt } from "../../../types/database";
+import "./challenges.css";
 
 interface ChallengeCardProps {
   type: "mini_boss" | "final_boss";

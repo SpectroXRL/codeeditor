@@ -50,8 +50,8 @@
   --scrollbar-thumb: #495057;
   --scrollbar-thumb-hover: #6c757d;
 
-  /* Missing variables used across components */
-  --border-color: #495057;
+  /* Alias kept for legacy components; prefer --border in new styles */
+  --border-color: var(--border);
   --bg-hover: #3d4349;
   --text-tertiary: #868e96;
   --accent-bg: rgba(13, 110, 253, 0.15);
@@ -101,8 +101,8 @@
   --scrollbar-thumb: #adb5bd;
   --scrollbar-thumb-hover: #6c757d;
 
-  /* Missing variables used across components */
-  --border-color: #dee2e6;
+  /* Alias kept for legacy components; prefer --border in new styles */
+  --border-color: var(--border);
   --bg-hover: #f3f4f6;
   --text-tertiary: #9ca3af;
   --accent-bg: rgba(13, 110, 253, 0.1);

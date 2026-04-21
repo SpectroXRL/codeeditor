@@ -3,8 +3,8 @@
  * Displays the AI's thinking process for educational purposes
  */
 
-import { Panel } from "../shared";
-import "./AgentReasoningPanel.css";
+import { Panel } from "../../shared";
+import "./panels.css";
 
 interface AgentReasoningPanelProps {
   reasoning: string;

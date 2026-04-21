@@ -28,7 +28,7 @@ import {
   validatePrompt,
   getSafeBlockMessage,
 } from '../services/inputSanitizer';
-import type { TestResult } from '../components/learning/TestCasesPanel';
+import type { TestResult } from '../components/learning/challenges/TestCasesPanel';
 
 // ============================================
 // Types

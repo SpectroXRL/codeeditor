@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useCompletedCount } from "../../stores/progressSelectors";
-import type { Topic } from "../../types/database";
-import "./Dropdowns.css";
+import { useCompletedCount } from "../../../stores/progressSelectors";
+import type { Topic } from "../../../types/database";
+import "./navigation.css";
 
 interface TopicDropdownProps {
   topics: Topic[];

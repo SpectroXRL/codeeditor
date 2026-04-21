@@ -9,10 +9,10 @@ import type {
   ApiErrorRecoveryScores,
   TestDiffData,
   ErrorType,
-} from "../../types/database";
-import { ERROR_TYPES } from "../../types/database";
-import { TestDiffPanel } from "./TestDiffPanel";
-import "./ErrorRecoveryScoreCard.css";
+} from "../../../types/database";
+import { ERROR_TYPES } from "../../../types/database";
+import { TestDiffPanel } from "../challenges/TestDiffPanel";
+import "./scoring.css";
 
 interface ErrorRecoveryScoreCardProps {
   scores: ApiErrorRecoveryScores;

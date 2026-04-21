@@ -1,5 +1,5 @@
-import { Panel } from "../shared";
-import "./HintsPanel.css";
+import { Panel } from "../../shared";
+import "./panels.css";
 
 interface HintsPanelProps {
   hints: string[];

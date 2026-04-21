@@ -5,7 +5,7 @@ import { CodeEditor } from "../components/CodeEditor";
 import {
   TestCasesPanel,
   type TestResult,
-} from "../components/learning/TestCasesPanel";
+} from "../components/learning/challenges/TestCasesPanel";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";
 import { useChallenge, formatTime } from "../hooks/useChallenge";

@@ -3,8 +3,8 @@
  * Displays the chat-style history of prompts and generated code
  */
 
-import type { PromptTurn } from "../../types/database";
-import "./ConversationHistory.css";
+import type { PromptTurn } from "../../../types/database";
+import "./chat.css";
 
 interface ConversationHistoryProps {
   history: PromptTurn[];

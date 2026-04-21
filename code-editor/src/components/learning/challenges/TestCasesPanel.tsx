@@ -1,6 +1,6 @@
-import type { TestCase } from "../../types/database";
-import { Panel } from "../shared";
-import "./TestCasesPanel.css";
+import type { TestCase } from "../../../types/database";
+import { Panel } from "../../shared";
+import "./challenges.css";
 
 export interface TestResult {
   input: string;

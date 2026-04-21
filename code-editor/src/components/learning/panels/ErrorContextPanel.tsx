@@ -5,9 +5,9 @@
 
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
-import type { ErrorType } from "../../types/database";
-import { ERROR_TYPES } from "../../types/database";
-import "./ErrorContextPanel.css";
+import type { ErrorType } from "../../../types/database";
+import { ERROR_TYPES } from "../../../types/database";
+import "./panels.css";
 
 interface ErrorContextPanelProps {
   brokenCode: string;

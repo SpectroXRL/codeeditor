@@ -67,8 +67,11 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
         {error && <div className="auth-error">{error}</div>}
 
         <div className="form-group">
-          <label htmlFor="signup-email">Email</label>
+          <label className="form-label" htmlFor="signup-email">
+            Email
+          </label>
           <input
+            className="form-input"
             id="signup-email"
             type="email"
             value={email}
@@ -79,8 +82,11 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="signup-password">Password</label>
+          <label className="form-label" htmlFor="signup-password">
+            Password
+          </label>
           <input
+            className="form-input"
             id="signup-password"
             type="password"
             value={password}
@@ -92,8 +98,11 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="confirm-password">Confirm Password</label>
+          <label className="form-label" htmlFor="confirm-password">
+            Confirm Password
+          </label>
           <input
+            className="form-input"
             id="confirm-password"
             type="password"
             value={confirmPassword}
@@ -103,7 +112,11 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           />
         </div>
 
-        <button type="submit" className="auth-submit" disabled={loading}>
+        <button
+          type="submit"
+          className="auth-submit btn btn-primary btn-full"
+          disabled={loading}
+        >
           {loading ? "Creating account..." : "Sign Up"}
         </button>
       </form>

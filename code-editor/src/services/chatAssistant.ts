@@ -1,4 +1,4 @@
-import type { TestResult } from "../components/learning/TestCasesPanel";
+import type { TestResult } from "../components/learning/challenges/TestCasesPanel";
 
 export interface ChatMessage {
   role: "user" | "assistant";

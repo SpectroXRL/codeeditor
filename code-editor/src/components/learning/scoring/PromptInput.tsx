@@ -4,7 +4,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import "./PromptInput.css";
+import "./scoring.css";
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
