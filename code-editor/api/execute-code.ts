@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { checkRateLimit, getRequestIdentity } from "./shared/rateLimit";
-import { validateExecutionRequest } from "./shared/validator";
+import { checkRateLimit, getRequestIdentity } from "./shared/rateLimit.js";
+import { validateExecutionRequest } from "./shared/validator.js";
 
 const API_URL = "https://judge0-ce.p.rapidapi.com";
 const API_KEY = process.env.JUDGE0_API_KEY;
