@@ -8,11 +8,7 @@ interface RunOutputProps {
 
 export function RunOutput({ runResult, runError, outputText }: RunOutputProps) {
   if (!outputText) {
-    return (
-      <div className="learn-run-output empty">
-        Run your code to see output and errors here.
-      </div>
-    );
+    return null;
   }
 
   const hasError = Boolean(
