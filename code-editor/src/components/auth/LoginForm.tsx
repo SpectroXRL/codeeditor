@@ -38,8 +38,11 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
         {error && <div className="auth-error">{error}</div>}
 
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label className="form-label" htmlFor="email">
+            Email
+          </label>
           <input
+            className="form-input"
             id="email"
             type="email"
             value={email}
@@ -50,8 +53,11 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label className="form-label" htmlFor="password">
+            Password
+          </label>
           <input
+            className="form-input"
             id="password"
             type="password"
             value={password}
@@ -61,7 +67,11 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
           />
         </div>
 
-        <button type="submit" className="auth-submit" disabled={loading}>
+        <button
+          type="submit"
+          className="auth-submit btn btn-primary btn-full"
+          disabled={loading}
+        >
           {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>

@@ -18,13 +18,13 @@
 
 .learn-page__header p {
   margin: 0.3rem 0 0;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .learn-page__reset {
-  border: 1px solid #334155;
-  background: #0f172a;
-  color: #e2e8f0;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
   cursor: pointer;

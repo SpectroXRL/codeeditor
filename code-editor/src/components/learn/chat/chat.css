@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #0f172a;
-  border: 1px solid #1e293b;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .learn-chat-panel__header {
@@ -26,13 +26,13 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #93c5fd;
+  color: var(--accent);
 }
 
 .learn-chat-panel__hint {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .learn-chat-panel__messages {
@@ -51,13 +51,13 @@
 }
 
 .learn-message.user {
-  background: #1f2937;
-  border-color: #374151;
+  background: var(--bg-secondary);
+  border-color: var(--border);
 }
 
 .learn-message.agent {
-  background: #111827;
-  border-color: #334155;
+  background: var(--bg-tertiary);
+  border-color: var(--border);
 }
 
 .learn-message__meta {
@@ -65,7 +65,7 @@
   justify-content: space-between;
   margin-bottom: 0.35rem;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .learn-message__content {
@@ -75,8 +75,8 @@
 
 .learn-message__code-preview {
   margin: 0.6rem 0 0;
-  background: #020617;
-  border: 1px solid #1e293b;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.75rem;
   overflow: auto;
@@ -89,7 +89,7 @@
 
 .learn-suggestions__label {
   margin: 0 0 0.35rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   font-size: 0.82rem;
 }
 
@@ -100,9 +100,9 @@
 }
 
 .learn-suggestions__chip {
-  border: 1px solid #334155;
-  background: #0b1220;
-  color: #dbeafe;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
   border-radius: 999px;
   padding: 0.25rem 0.7rem;
   font-size: 0.75rem;
@@ -111,9 +111,9 @@
 
 .learn-chat-panel__reflect-btn {
   margin-top: 0.75rem;
-  border: 1px solid #14532d;
-  background: #052e16;
-  color: #bbf7d0;
+  border: 1px solid var(--success);
+  background: var(--success-muted);
+  color: var(--success);
   border-radius: 8px;
   padding: 0.45rem 0.75rem;
   font-size: 0.8rem;
@@ -123,7 +123,7 @@
 
 .learn-chat-panel__error {
   margin: 0.6rem 0 0;
-  color: #fecaca;
+  color: var(--error);
   font-size: 0.8rem;
 }
 
@@ -138,17 +138,17 @@
   width: 100%;
   resize: vertical;
   border-radius: 8px;
-  border: 1px solid #334155;
-  background: #020617;
-  color: #e2e8f0;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
   padding: 0.6rem;
 }
 
 .learn-chat-panel__composer button {
   border-radius: 8px;
-  border: 1px solid #2563eb;
-  background: #1d4ed8;
-  color: #eff6ff;
+  border: 1px solid var(--accent);
+  background: var(--accent-hover);
+  color: white;
   padding: 0.6rem 0.9rem;
   cursor: pointer;
 }

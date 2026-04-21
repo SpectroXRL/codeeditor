@@ -4,10 +4,10 @@
  */
 
 import { useEffect, useCallback } from "react";
-import { TabGroup, type Tab } from "../shared";
-import { ChatDrawer } from "./ChatDrawer";
-import type { TestResult } from "./TestCasesPanel";
-import "./TabbedSidebar.css";
+import { TabGroup, type Tab } from "../../shared";
+import { ChatDrawer } from "../chat/ChatDrawer";
+import type { TestResult } from "../challenges/TestCasesPanel";
+import "./navigation.css";
 
 export type SidebarTab = "chat" | "hints";
 

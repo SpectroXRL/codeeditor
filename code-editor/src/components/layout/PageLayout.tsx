@@ -1,16 +1,31 @@
 import type { ReactNode } from "react";
 import { Header } from "./Header";
-import "./PageLayout.css";
 
 interface PageLayoutProps {
   children: ReactNode;
 }
 
 export function PageLayout({ children }: PageLayoutProps) {
+  const layoutStyle = {
+    display: "flex",
+    flexDirection: "column" as const,
+    height: "100vh",
+    backgroundColor: "var(--bg-primary)",
+    overflow: "hidden" as const,
+  };
+
+  const contentStyle = {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column" as const,
+    minHeight: 0,
+    overflow: "auto" as const,
+  };
+
   return (
-    <div className="page-layout">
+    <div style={layoutStyle}>
       <Header />
-      <main className="page-content">{children}</main>
+      <main style={contentStyle}>{children}</main>
     </div>
   );
 }

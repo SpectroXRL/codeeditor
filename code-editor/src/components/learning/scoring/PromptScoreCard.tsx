@@ -4,8 +4,8 @@
  */
 
 import { useState } from "react";
-import type { PromptTechnique, ApiPromptScores } from "../../types/database";
-import "./PromptScoreCard.css";
+import type { PromptTechnique, ApiPromptScores } from "../../../types/database";
+import "./scoring.css";
 
 interface PromptScoreCardProps {
   scores: ApiPromptScores;

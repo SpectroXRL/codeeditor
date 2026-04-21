@@ -5,8 +5,8 @@
  */
 
 import { useState } from "react";
-import type { TestDiffData } from "../../types/database";
-import "./TestDiffPanel.css";
+import type { TestDiffData } from "../../../types/database";
+import "./challenges.css";
 
 interface TestDiffPanelProps {
   testDiff: TestDiffData;

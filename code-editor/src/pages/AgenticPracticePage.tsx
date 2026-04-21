@@ -8,7 +8,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { PageLayout } from "../components/layout/PageLayout";
 import { CodeEditor } from "../components/CodeEditor";
-import { PromptScoreCard } from "../components/learning/PromptScoreCard";
+import { PromptScoreCard } from "../components/learning/scoring/PromptScoreCard";
 import { Panel } from "../components/shared/Panel/Panel";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";

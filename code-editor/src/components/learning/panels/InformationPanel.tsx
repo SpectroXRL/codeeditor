@@ -1,8 +1,8 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { Content } from "../../types/database";
-import { Panel } from "../shared";
-import "./InformationPanel.css";
+import type { Content } from "../../../types/database";
+import { Panel } from "../../shared";
+import "./panels.css";
 
 interface InformationPanelProps {
   content: Content | null;

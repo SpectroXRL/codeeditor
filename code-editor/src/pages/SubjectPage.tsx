@@ -1,17 +1,17 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/layout/PageLayout";
-import { TopicDropdown } from "../components/learning/TopicDropdown";
-import { SubTopicDropdown } from "../components/learning/SubTopicDropdown";
-import { InformationPanel } from "../components/learning/InformationPanel";
+import { TopicDropdown } from "../components/learning/navigation/TopicDropdown";
+import { SubTopicDropdown } from "../components/learning/navigation/SubTopicDropdown";
+import { InformationPanel } from "../components/learning/panels/InformationPanel";
 import {
   TestCasesPanel,
   type TestResult,
-} from "../components/learning/TestCasesPanel";
+} from "../components/learning/challenges/TestCasesPanel";
 import {
   TabbedSidebar,
   type SidebarTab,
-} from "../components/learning/TabbedSidebar";
+} from "../components/learning/navigation/TabbedSidebar";
 import { CodeEditor } from "../components/CodeEditor";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";

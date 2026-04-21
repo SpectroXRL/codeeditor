@@ -4,8 +4,8 @@
  */
 
 import { useState } from "react";
-import { PROMPT_TECHNIQUES, type PromptTechnique } from "../../types/database";
-import "./TechniqueTagSelector.css";
+import { PROMPT_TECHNIQUES, type PromptTechnique } from "../../../types/database";
+import "./navigation.css";
 
 interface TechniqueTagSelectorProps {
   selectedTechniques: PromptTechnique[];

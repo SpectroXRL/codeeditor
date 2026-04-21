@@ -3,9 +3,9 @@ import {
   sendChatMessage,
   type ChatContext,
   type ChatMessage,
-} from "../../services/chatAssistant";
-import type { TestResult } from "./TestCasesPanel";
-import "./ChatDrawer.css";
+} from "../../../services/chatAssistant";
+import type { TestResult } from "../challenges/TestCasesPanel";
+import "./chat.css";
 
 interface ChatDrawerProps {
   isOpen: boolean;

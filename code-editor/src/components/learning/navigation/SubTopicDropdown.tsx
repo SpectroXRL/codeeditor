@@ -1,5 +1,5 @@
-import type { SubTopic } from "../../types/database";
-import "./Dropdowns.css";
+import type { SubTopic } from "../../../types/database";
+import "./navigation.css";
 
 interface SubTopicDropdownProps {
   subtopics: SubTopic[];
