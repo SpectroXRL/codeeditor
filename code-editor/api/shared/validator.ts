@@ -1,4 +1,4 @@
-import { isLanguageAllowed, LANGUAGE_NAME_BY_ID } from './languageAllowlist';
+import { isLanguageAllowed, LANGUAGE_NAME_BY_ID } from './languageAllowlist.js';
 
 export interface ValidationResult {
   valid: boolean;
