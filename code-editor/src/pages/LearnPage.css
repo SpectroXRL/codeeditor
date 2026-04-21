@@ -1,7 +1,8 @@
 .learn-page {
   display: grid;
+  grid-template-rows: auto auto 1fr;
   gap: 0.9rem;
-  min-height: calc(100vh - 130px);
+  height: 100%;
 }
 
 .learn-page__header {
@@ -33,6 +34,7 @@
 .learn-page__grid {
   display: grid;
   grid-template-columns: minmax(320px, 2fr) minmax(460px, 3fr);
+  grid-template-rows: 1fr;
   gap: 1rem;
   min-height: 0;
 }
@@ -42,7 +44,13 @@
 }
 
 @media (max-width: 1024px) {
+  .learn-page {
+    height: auto;
+    grid-template-rows: auto;
+  }
+
   .learn-page__grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 }
