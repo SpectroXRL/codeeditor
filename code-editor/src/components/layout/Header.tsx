@@ -44,6 +44,10 @@ export function Header() {
         </Link>
 
         <nav className="header-nav">
+          <Link to="/learn" className="nav-link nav-link--learn">
+            <span className="nav-icon">💡</span>
+            Learn Mode
+          </Link>
           <Link to="/agentic" className="nav-link nav-link--agentic">
             <span className="nav-icon">🤖</span>
             Prompt Engineering

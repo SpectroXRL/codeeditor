@@ -1,0 +1,71 @@
+.learn-editor {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.learn-editor__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.learn-editor__run {
+  border: 1px solid #0ea5e9;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: #f8fafc;
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.learn-editor__workspace {
+  min-height: 360px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.learn-run-output {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 0.65rem;
+}
+
+.learn-run-output.empty {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.learn-run-output.success {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.learn-run-output.error {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.learn-run-output__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.learn-run-output__status {
+  font-weight: 600;
+}
+
+.learn-run-output pre {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+}

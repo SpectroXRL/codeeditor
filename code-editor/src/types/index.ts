@@ -25,6 +25,17 @@ export interface SubmissionResponse {
 
 export const LANGUAGES: Language[] = [
   {
+    id: 93,
+    name: 'JavaScript',
+    monacoLanguage: 'javascript',
+    template: `function main() {
+  const message = "Hello, World!";
+  console.log(message);
+}
+
+main();`,
+  },
+  {
     id: 62,
     name: 'Java',
     monacoLanguage: 'java',
@@ -110,3 +121,13 @@ export interface TutorResponse {
   tier: import('./database').AssistanceTier;
   followUpAvailable: boolean;
 }
+
+export type {
+  SessionStage,
+  LearnMessageType,
+  SessionContext,
+  LearnChatMessage,
+  LearnSessionState,
+  LearnSessionMessageResponse,
+  LearnSessionEvaluateResponse,
+} from './session';
