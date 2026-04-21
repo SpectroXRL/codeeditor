@@ -2,9 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
   padding: 1rem;
   color: var(--text-primary);
 }
@@ -22,11 +21,13 @@
   font-size: 1rem;
 }
 
-.learn-chat-panel__stage {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
+.learn-chat-panel__goal {
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .learn-chat-panel__hint {
@@ -151,4 +152,12 @@
   color: white;
   padding: 0.6rem 0.9rem;
   cursor: pointer;
+}
+
+.learn-chat-panel__stage-status {
+  margin-top: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-style: italic;
+  letter-spacing: 0.03em;
 }

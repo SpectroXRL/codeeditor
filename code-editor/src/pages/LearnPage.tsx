@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from "react";
 import { PageLayout } from "../components/layout/PageLayout";
 import { ChatPanel } from "../components/learn/chat/ChatPanel";
 import { CodeWorkspace } from "../components/learn/editor/CodeWorkspace";
-import { SessionStageBar } from "../components/learn/session";
 import { useTheme } from "../context/ThemeContext";
 import { useCodeExecution } from "../hooks/learn/useCodeExecution";
 import { useLearnSession } from "../hooks/learn/useLearnSession";
@@ -136,15 +135,11 @@ export function LearnPage() {
           </button>
         </header>
 
-        <SessionStageBar
-          currentStage={sessionStage}
-          learningGoal={learningGoal}
-        />
-
         <div className="learn-page__grid">
           <ChatPanel
             messages={chatHistory}
             sessionStage={sessionStage}
+            learningGoal={learningGoal}
             inputValue={inputValue}
             isSending={isSending}
             isEvaluating={isEvaluating}

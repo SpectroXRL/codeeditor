@@ -6,6 +6,7 @@ import "./chat.css";
 interface ChatPanelProps {
   messages: LearnChatMessage[];
   sessionStage: SessionStage;
+  learningGoal: string;
   inputValue: string;
   isSending: boolean;
   isEvaluating: boolean;
@@ -39,6 +40,7 @@ function getStageHint(stage: SessionStage): string {
 export function ChatPanel({
   messages,
   sessionStage,
+  learningGoal,
   inputValue,
   isSending,
   isEvaluating,
@@ -53,8 +55,11 @@ export function ChatPanel({
     <section className="learn-chat-panel">
       <header className="learn-chat-panel__header">
         <h2>Learn Agent</h2>
-        <span className="learn-chat-panel__stage">Stage: {sessionStage}</span>
       </header>
+
+      {learningGoal && (
+        <p className="learn-chat-panel__goal">Goal: {learningGoal}</p>
+      )}
 
       <p className="learn-chat-panel__hint">{getStageHint(sessionStage)}</p>
 
@@ -97,6 +102,12 @@ export function ChatPanel({
           {isSending ? "Sending..." : isEvaluating ? "Evaluating..." : "Send"}
         </button>
       </div>
+
+      {(isSending || isEvaluating) && (
+        <span className="learn-chat-panel__stage-status">
+          Stage: {sessionStage}
+        </span>
+      )}
     </section>
   );
 }
