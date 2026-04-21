@@ -53,6 +53,17 @@
   color: var(--text-primary);
 }
 
+.nav-link--learn {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 165, 233, 0.12));
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  color: var(--text-primary);
+}
+
+.nav-link--learn:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(14, 165, 233, 0.2));
+  border-color: rgba(14, 165, 233, 0.55);
+}
+
 .nav-link--agentic:hover {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
   border-color: rgba(139, 92, 246, 0.5);

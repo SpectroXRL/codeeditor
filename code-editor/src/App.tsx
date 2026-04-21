@@ -7,6 +7,7 @@ import { ChallengePage } from "./pages/ChallengePage";
 import { AgenticChallengePage } from "./pages/AgenticChallengePage";
 import { AgenticHomePage } from "./pages/AgenticHomePage";
 import { AgenticPracticePage } from "./pages/AgenticPracticePage";
+import { LearnPage } from "./pages/LearnPage";
 import "./App.css";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/learn" element={<LearnPage />} />
           <Route path="/subjects/:subjectId" element={<SubjectPage />} />
           <Route path="/challenge/:challengeId" element={<ChallengePage />} />
           <Route path="/challenge/topic/:topicId" element={<ChallengePage />} />

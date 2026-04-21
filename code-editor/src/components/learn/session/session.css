@@ -1,0 +1,42 @@
+.learn-stage-bar {
+  border: 1px solid #dbeafe;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.learn-stage-bar__stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.learn-stage-pill {
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.learn-stage-pill.completed {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.learn-stage-pill.active {
+  background: #bfdbfe;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.learn-stage-pill.upcoming {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.learn-stage-bar__goal {
+  margin: 0.7rem 0 0;
+  color: #334155;
+  font-size: 0.88rem;
+}

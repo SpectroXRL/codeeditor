@@ -1,4 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { checkRateLimit, getRequestIdentity } from "./shared/rateLimit";
+import { validateExecutionRequest } from "./shared/validator";
 
 const API_URL = "https://judge0-ce.p.rapidapi.com";
 const API_KEY = process.env.JUDGE0_API_KEY;
@@ -115,6 +117,15 @@ export default async function handler(
     return res.status(500).json({ error: "Server configuration error" });
   }
 
+  const identity = getRequestIdentity(req.headers["x-forwarded-for"]);
+  const rate = checkRateLimit(`execute-code:${identity}`, 80, 60 * 60 * 1000);
+  if (!rate.allowed) {
+    res.setHeader("Retry-After", rate.retryAfterSeconds.toString());
+    return res.status(429).json({
+      error: "Rate limit exceeded. Please try again later.",
+    });
+  }
+
   try {
     const { sourceCode, languageId, stdin = "" } = req.body;
 
@@ -126,8 +137,15 @@ export default async function handler(
       return res.status(400).json({ error: "languageId is required" });
     }
 
+    const executionValidation = validateExecutionRequest(sourceCode, languageId);
+    if (!executionValidation.valid) {
+      return res.status(400).json({
+        error: executionValidation.blockedReason || "Execution request blocked",
+      });
+    }
+
     // Submit and poll for result
-    const token = await submitCode(sourceCode, languageId, stdin);
+    const token = await submitCode(executionValidation.sanitized, languageId, stdin);
     const result = await pollForResult(token);
 
     return res.status(200).json(result);
