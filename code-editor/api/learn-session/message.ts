@@ -16,6 +16,7 @@ type SessionStage =
   | 'clarify'
   | 'teach'
   | 'practice'
+  | 'check_in'
   | 'reflect'
   | 'challenge';
 
@@ -70,6 +71,7 @@ const STAGES: SessionStage[] = [
   'clarify',
   'teach',
   'practice',
+  'check_in',
   'reflect',
   'challenge',
 ];
@@ -87,6 +89,8 @@ function nextDefaultStage(stage: SessionStage): SessionStage {
     case 'teach':
       return 'practice';
     case 'practice':
+      return 'check_in';
+    case 'check_in':
       return 'reflect';
     case 'reflect':
       return 'challenge';
@@ -105,6 +109,8 @@ function defaultMessageType(stage: SessionStage): MessageType {
       return 'starter_code';
     case 'practice':
       return 'feedback';
+    case 'check_in':
+      return 'chat';
     case 'reflect':
       return 'evaluation';
     case 'challenge':
@@ -127,7 +133,8 @@ Mission:
 Stage behavior:
 - idle/clarify: ask one short clarifying question to narrow the goal.
 - teach: explain quickly and provide tiny starter code the student can edit.
-- practice: inspect student code and give next-step guidance, not full solutions.
+- practice: inspect student code and give next-step guidance, not full solutions. After 2-3 turns of clear progress, ask a readiness check by setting nextStage to check_in.
+- check_in: ask if the student feels they understand it. If they say yes, set nextStage to reflect. If they say no or ask for more help, set nextStage to practice.
 - reflect: ask student to explain their understanding back; check conceptual clarity.
 - challenge: propose one small challenge aligned with what they just learned.
 
@@ -135,7 +142,7 @@ Output must be valid JSON with this exact shape:
 {
   "response": "string",
   "starterCode": "string optional",
-  "nextStage": "idle|clarify|teach|practice|reflect|challenge",
+  "nextStage": "idle|clarify|teach|practice|check_in|reflect|challenge",
   "messageType": "chat|clarifying_question|starter_code|feedback|evaluation|challenge",
   "learningGoal": "string optional"
 }

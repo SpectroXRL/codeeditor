@@ -41,7 +41,6 @@ export function LearnPage() {
     error,
     sendMessage,
     triggerEvaluate,
-    enterReflectMode,
     resetSession,
   } = useLearnSession({
     onStarterCode: (starterCode) => {
@@ -102,10 +101,6 @@ export function LearnPage() {
     [setInputValue],
   );
 
-  const handleEnterReflectMode = useCallback(() => {
-    enterReflectMode();
-  }, [enterReflectMode]);
-
   const headerCopy = useMemo(
     () =>
       totalUserMessages === 0
@@ -150,7 +145,6 @@ export function LearnPage() {
               void handleSend();
             }}
             onUsePrompt={handleUsePrompt}
-            onEnterReflectMode={handleEnterReflectMode}
           />
 
           <CodeWorkspace

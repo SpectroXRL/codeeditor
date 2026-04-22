@@ -128,14 +128,6 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
     ],
   );
 
-  const enterReflectMode = useCallback(() => {
-    setSessionStage('reflect');
-    appendAgentMessage(
-      'Great progress. Explain back what changed in your code and why it works now.',
-      'evaluation',
-    );
-  }, [appendAgentMessage]);
-
   const triggerEvaluate = useCallback(
     async ({ context, currentCode, studentExplanation }: EvaluateArgs) => {
       if (isEvaluating) {
@@ -208,7 +200,6 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
     error,
     sendMessage,
     triggerEvaluate,
-    enterReflectMode,
     resetSession,
   };
 }
