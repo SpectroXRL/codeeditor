@@ -3,6 +3,7 @@ export type SessionStage =
   | 'clarify'
   | 'teach'
   | 'practice'
+  | 'check_in'
   | 'reflect'
   | 'challenge';
 

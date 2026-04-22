@@ -15,7 +15,6 @@ interface ChatPanelProps {
   onInputChange: (value: string) => void;
   onSend: () => void;
   onUsePrompt: (prompt: string) => void;
-  onEnterReflectMode: () => void;
 }
 
 function getStageHint(stage: SessionStage): string {
@@ -28,6 +27,8 @@ function getStageHint(stage: SessionStage): string {
       return "Read the explanation, then modify and run the starter code.";
     case "practice":
       return "Keep iterating on your code and ask for targeted guidance.";
+    case "check_in":
+      return "The agent is checking your readiness. Reply whether you feel you understand it yet.";
     case "reflect":
       return "Explain back what changed and why it works.";
     case "challenge":
@@ -49,7 +50,6 @@ export function ChatPanel({
   onInputChange,
   onSend,
   onUsePrompt,
-  onEnterReflectMode,
 }: ChatPanelProps) {
   return (
     <section className="learn-chat-panel">
@@ -71,17 +71,6 @@ export function ChatPanel({
 
       {sessionStage === "idle" && (
         <SuggestedPrompts prompts={suggestedPrompts} onSelect={onUsePrompt} />
-      )}
-
-      {sessionStage === "practice" && (
-        <button
-          className="learn-chat-panel__reflect-btn"
-          type="button"
-          onClick={onEnterReflectMode}
-          disabled={isSending || isEvaluating}
-        >
-          I think I get it now
-        </button>
       )}
 
       {error && <p className="learn-chat-panel__error">{error}</p>}
