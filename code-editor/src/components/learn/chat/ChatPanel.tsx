@@ -51,6 +51,8 @@ export function ChatPanel({
   onSend,
   onUsePrompt,
 }: ChatPanelProps) {
+  const hasLinkInInput = /https:\/\/\S+/i.test(inputValue);
+
   return (
     <section className="learn-chat-panel">
       <header className="learn-chat-panel__header">
@@ -91,6 +93,12 @@ export function ChatPanel({
           {isSending ? "Sending..." : isEvaluating ? "Evaluating..." : "Send"}
         </button>
       </div>
+
+      {hasLinkInInput && (
+        <p className="learn-chat-panel__link-hint">
+          Link detected. Learn Agent will try to read it for context.
+        </p>
+      )}
 
       {(isSending || isEvaluating) && (
         <span className="learn-chat-panel__stage-status">
