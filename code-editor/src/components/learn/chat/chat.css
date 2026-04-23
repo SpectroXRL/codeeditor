@@ -161,3 +161,9 @@
   font-style: italic;
   letter-spacing: 0.03em;
 }
+
+.learn-chat-panel__link-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}

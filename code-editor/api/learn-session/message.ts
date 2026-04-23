@@ -10,6 +10,12 @@ import {
   validateChatMessage,
   validateCode,
 } from '../shared/validator.js';
+import {
+  checkUrlSafety,
+  extractFirstUrl,
+  fetchAndExtract,
+  validateUrl,
+} from '../shared/urlFetcher.js';
 
 type SessionStage =
   | 'idle'
@@ -64,6 +70,12 @@ interface LearnMessageResponse {
   nextStage: SessionStage;
   messageType: MessageType;
   learningGoal?: string;
+}
+
+interface ResourceContextPayload {
+  url: string;
+  content?: string;
+  note?: string;
 }
 
 const STAGES: SessionStage[] = [
@@ -151,6 +163,8 @@ Rules:
 - If the student asks for unrelated content, refuse and ask them to stay focused on coding learning.
 - If the user asks for unsafe or malicious content, refuse.
 - Only provide starterCode in teach stage or when explicitly needed for learning progression.
+- If a Provided Resource section is present, use it as the primary basis for the lesson and extract the most relevant coding concepts.
+- If the Provided Resource says content could not be fetched, ask the student to paste the relevant excerpt before continuing.
 - Prefer JavaScript/TypeScript syntax if language context is unclear.
 - Never output Markdown fences around JSON.`;
 }
@@ -159,10 +173,17 @@ function buildContextMessage(
   message: string,
   context: SessionContext,
   stage: SessionStage,
+  resourceContext?: ResourceContextPayload,
 ): string {
   const runSummary = context.recentRunResult
     ? `\nRecent Run Result:\n- status: ${context.recentRunResult.status.description}\n- stdout: ${context.recentRunResult.stdout || '(none)'}\n- stderr: ${context.recentRunResult.stderr || '(none)'}\n- compile_output: ${context.recentRunResult.compile_output || '(none)'}`
     : '\nRecent Run Result: none';
+
+  const resourceSection = resourceContext
+    ? resourceContext.content
+      ? `\n\nProvided Resource (from ${resourceContext.url}):\n${resourceContext.content}`
+      : `\n\nProvided Resource (from ${resourceContext.url}):\n${resourceContext.note || 'Resource content could not be fetched automatically. Ask the student to paste the relevant section manually.'}`
+    : '';
 
   return `Student message: ${message}
 
@@ -174,7 +195,7 @@ Session Context:
 
 Current Code:
 ${context.currentCode}
-${runSummary}`;
+${runSummary}${resourceSection}`;
 }
 
 function normalizeResponse(
@@ -271,6 +292,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } satisfies LearnMessageResponse);
     }
 
+    let resourceContext: ResourceContextPayload | undefined;
+    const urlInMessage = extractFirstUrl(validation.sanitized);
+
+    if (urlInMessage) {
+      const urlRate = checkRateLimit(`learn-url-fetch:${identity}`, 10, 60 * 60 * 1000);
+      if (!urlRate.allowed) {
+        resourceContext = {
+          url: urlInMessage,
+          note: 'Resource fetch skipped because link-reading rate limits were reached. Ask the student to paste the relevant section manually.',
+        };
+      } else {
+        const validatedUrl = await validateUrl(urlInMessage);
+        if (!validatedUrl.valid || !validatedUrl.normalizedUrl) {
+          resourceContext = {
+            url: urlInMessage,
+            note:
+              'The provided link did not pass URL safety validation. Ask the student to paste the relevant docs excerpt manually.',
+          };
+        } else {
+          const safetyCheck = await checkUrlSafety(validatedUrl.normalizedUrl);
+          if (!safetyCheck.safe) {
+            return res.status(200).json({
+              response:
+                'I cannot open that link because it appears unsafe. Please share a trusted docs URL or paste the relevant excerpt.',
+              nextStage: stage,
+              messageType: 'refusal',
+            } satisfies LearnMessageResponse);
+          }
+
+          if (safetyCheck.skipped && safetyCheck.reason) {
+            console.warn('Safe Browsing check skipped:', safetyCheck.reason);
+          }
+
+          try {
+            const fetchedResource = await fetchAndExtract(validatedUrl.normalizedUrl);
+            if (fetchedResource.content) {
+              resourceContext = {
+                url: fetchedResource.sourceUrl,
+                content: fetchedResource.content,
+              };
+            } else {
+              resourceContext = {
+                url: fetchedResource.sourceUrl,
+                note:
+                  fetchedResource.failureReason ||
+                  'Resource content could not be fetched automatically. Ask the student to paste the relevant section manually.',
+              };
+            }
+          } catch (resourceError) {
+            console.warn('Resource fetch pipeline failed:', resourceError);
+            resourceContext = {
+              url: validatedUrl.normalizedUrl,
+              note:
+                'Resource content could not be fetched automatically. Ask the student to paste the relevant section manually.',
+            };
+          }
+        }
+      }
+    }
+
     const openai = new OpenAI({ apiKey });
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -281,7 +362,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         { role: 'system', content: buildSystemPrompt(stage) },
         {
           role: 'user',
-          content: buildContextMessage(validation.sanitized, body.context, stage),
+          content: buildContextMessage(
+            validation.sanitized,
+            body.context,
+            stage,
+            resourceContext,
+          ),
         },
       ],
     });
