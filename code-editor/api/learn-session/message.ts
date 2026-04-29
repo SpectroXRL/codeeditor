@@ -610,12 +610,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (mode === 'copilot' && firstMessage?.tool_calls?.length) {
       const executeCodeToolCall = firstMessage.tool_calls.find(
-        (toolCall) => toolCall.function.name === 'execute_code',
+        (toolCall) =>
+          toolCall.type === 'function' && toolCall.function.name === 'execute_code',
       );
 
       if (executeCodeToolCall) {
         const toolResultContent = await runExecuteCodeTool(
-          executeCodeToolCall.function.arguments,
+          executeCodeToolCall.type === 'function'
+            ? executeCodeToolCall.function.arguments
+            : '{}',
         );
 
         const followupCompletion = await openai.chat.completions.create({
