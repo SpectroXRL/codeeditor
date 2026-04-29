@@ -3,21 +3,21 @@ import OpenAI from 'openai';
 import {
   classifyDomain,
   getDomainRefusalMessage,
-} from '../shared/domainClassifier.js';
-import { getRequestIdentity, checkRateLimit } from '../shared/rateLimit.js';
+} from '../../lib/domainClassifier.js';
+import { getRequestIdentity, checkRateLimit } from '../../lib/rateLimit.js';
 import {
   getSafeBlockMessage,
   validateChatMessage,
   validateCode,
   validateExecutionRequest,
-} from '../shared/validator.js';
+} from '../../lib/validator.js';
 import {
   checkUrlSafety,
   extractFirstUrl,
   fetchAndExtract,
   validateUrl,
-} from '../shared/urlFetcher.js';
-import { isJudge0Configured, pollForResult, submitCode } from '../shared/judge0.js';
+} from '../../lib/urlFetcher.js';
+import { isJudge0Configured, pollForResult, submitCode } from '../../lib/judge0.js';
 
 type SessionStage =
   | 'idle'

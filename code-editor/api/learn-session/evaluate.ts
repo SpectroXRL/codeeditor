@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import OpenAI from 'openai';
-import { classifyDomain, getDomainRefusalMessage } from '../shared/domainClassifier.js';
-import { checkRateLimit, getRequestIdentity } from '../shared/rateLimit.js';
+import { classifyDomain, getDomainRefusalMessage } from '../../lib/domainClassifier.js';
+import { checkRateLimit, getRequestIdentity } from '../../lib/rateLimit.js';
 import {
   getSafeBlockMessage,
   validateChatMessage,
   validateCode,
-} from '../shared/validator.js';
+} from '../../lib/validator.js';
 
 type SessionStage =
   | 'idle'

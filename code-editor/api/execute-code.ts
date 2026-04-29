@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { checkRateLimit, getRequestIdentity } from "./shared/rateLimit.js";
-import { validateExecutionRequest } from "./shared/validator.js";
-import { isJudge0Configured, pollForResult, submitCode } from "./shared/judge0.js";
+import { checkRateLimit, getRequestIdentity } from "../lib/rateLimit.js";
+import { validateExecutionRequest } from "../lib/validator.js";
+import { isJudge0Configured, pollForResult, submitCode } from "../lib/judge0.js";
 
 export default async function handler(
   req: VercelRequest,
