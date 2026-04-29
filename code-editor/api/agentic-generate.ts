@@ -42,7 +42,7 @@ interface ChallengeContext {
 interface GenerateRequest {
   attemptId?: string;  // Optional for practice mode
   prompt: string;
-  conversationHistory: PromptTurn[] | PracticeConversationTurn[];
+  conversationHistory: Array<PromptTurn | PracticeConversationTurn>;
   challengeContext?: ChallengeContext;  // For challenge mode
   // Practice mode fields
   currentCode?: string;
