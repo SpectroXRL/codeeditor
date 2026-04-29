@@ -1,106 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { checkRateLimit, getRequestIdentity } from "./shared/rateLimit.js";
-import { validateExecutionRequest } from "./shared/validator.js";
-
-const API_URL = "https://judge0-ce.p.rapidapi.com";
-const API_KEY = process.env.JUDGE0_API_KEY;
-const API_HOST = "judge0-ce.p.rapidapi.com";
-
-interface SubmissionResponse {
-  token: string;
-}
-
-interface SubmissionResult {
-  token: string;
-  stdout: string | null;
-  stderr: string | null;
-  compile_output: string | null;
-  message: string | null;
-  status: {
-    id: number;
-    description: string;
-  };
-  time: string | null;
-  memory: number | null;
-}
-
-const STATUS = {
-  IN_QUEUE: 1,
-  PROCESSING: 2,
-};
-
-async function submitCode(
-  sourceCode: string,
-  languageId: number,
-  stdin: string
-): Promise<string> {
-  const response = await fetch(
-    `${API_URL}/submissions?base64_encoded=false&wait=false`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-RapidAPI-Key": API_KEY!,
-        "X-RapidAPI-Host": API_HOST,
-      },
-      body: JSON.stringify({
-        source_code: sourceCode,
-        language_id: languageId,
-        stdin: stdin,
-      }),
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Submission failed: ${response.status} - ${error}`);
-  }
-
-  const data: SubmissionResponse = await response.json();
-  return data.token;
-}
-
-async function getSubmission(token: string): Promise<SubmissionResult> {
-  const response = await fetch(
-    `${API_URL}/submissions/${token}?base64_encoded=false&fields=stdout,stderr,status,compile_output,message,time,memory`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-RapidAPI-Key": API_KEY!,
-        "X-RapidAPI-Host": API_HOST,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Failed to get submission: ${response.status} - ${error}`);
-  }
-
-  const data: SubmissionResult = await response.json();
-  return { ...data, token };
-}
-
-async function pollForResult(
-  token: string,
-  maxAttempts: number = 30,
-  intervalMs: number = 1000
-): Promise<SubmissionResult> {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const result = await getSubmission(token);
-
-    // Check if processing is complete (status > 2 means done)
-    if (result.status.id > STATUS.PROCESSING) {
-      return result;
-    }
-
-    // Wait before next poll
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
-  }
-
-  throw new Error("Execution timed out - max polling attempts reached");
-}
+import { checkRateLimit, getRequestIdentity } from "../lib/rateLimit.js";
+import { validateExecutionRequest } from "../lib/validator.js";
+import { isJudge0Configured, pollForResult, submitCode } from "../lib/judge0.js";
 
 export default async function handler(
   req: VercelRequest,
@@ -112,7 +13,7 @@ export default async function handler(
   }
 
   // Validate API key is configured
-  if (!API_KEY) {
+  if (!isJudge0Configured()) {
     console.error("JUDGE0_API_KEY not configured");
     return res.status(500).json({ error: "Server configuration error" });
   }

@@ -16,6 +16,8 @@ export type LearnMessageType =
   | 'challenge'
   | 'refusal';
 
+export type LearnMode = 'guided' | 'explain' | 'copilot';
+
 export interface SessionLanguage {
   id: number;
   name: string;

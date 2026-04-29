@@ -42,7 +42,7 @@ interface ChallengeContext {
 interface GenerateRequest {
   attemptId?: string;  // Optional for practice mode
   prompt: string;
-  conversationHistory: PromptTurn[] | PracticeConversationTurn[];
+  conversationHistory: Array<PromptTurn | PracticeConversationTurn>;
   challengeContext?: ChallengeContext;  // For challenge mode
   // Practice mode fields
   currentCode?: string;
@@ -368,17 +368,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       // Add conversation history for practice mode
       for (const turn of conversationHistory) {
-        if (turn.role === 'user') {
-          messages.push({ role: 'user', content: turn.content });
-        } else {
-          messages.push({ 
-            role: 'assistant', 
-            content: JSON.stringify({
-              reasoning: turn.reasoning || '',
-              code: turn.code || '',
-              message: turn.content
-            })
-          });
+        if ('role' in turn) {
+          if (turn.role === 'user') {
+            messages.push({ role: 'user', content: turn.content });
+          } else {
+            messages.push({
+              role: 'assistant',
+              content: JSON.stringify({
+                reasoning: turn.reasoning || '',
+                code: turn.code || '',
+                message: turn.content,
+              }),
+            });
+          }
         }
       }
       

@@ -5,6 +5,7 @@ import {
 } from '../../services/learnSession';
 import type {
   LearnChatMessage,
+  LearnMode,
   SessionContext,
   SessionStage,
 } from '../../types/session';
@@ -16,6 +17,7 @@ interface UseLearnSessionOptions {
 interface SendMessageArgs {
   message: string;
   context: SessionContext;
+  mode: LearnMode;
 }
 
 interface EvaluateArgs {
@@ -76,7 +78,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
   }, []);
 
   const sendMessage = useCallback(
-    async ({ message, context }: SendMessageArgs) => {
+    async ({ message, context, mode }: SendMessageArgs) => {
       const trimmed = message.trim();
       if (!trimmed || isSending) {
         return;
@@ -91,6 +93,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
           message: trimmed,
           context,
           sessionStage,
+          mode,
         });
 
         appendAgentMessage(response.response, response.messageType, response.starterCode);
