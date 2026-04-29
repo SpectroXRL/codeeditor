@@ -1,4 +1,5 @@
 import type {
+  LearnMode,
   LearnSessionEvaluateResponse,
   LearnSessionMessageResponse,
   SessionContext,
@@ -9,6 +10,7 @@ interface MessageRequest {
   message: string;
   context: SessionContext;
   sessionStage: SessionStage;
+  mode: LearnMode;
 }
 
 interface EvaluateRequest {

@@ -21,6 +21,42 @@
   font-size: 1rem;
 }
 
+.learn-mode-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-input);
+}
+
+.learn-mode-switcher__button {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.learn-mode-switcher__button:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.learn-mode-switcher__button.is-active {
+  background: var(--accent-hover);
+  color: white;
+}
+
+.learn-mode-switcher__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .learn-chat-panel__goal {
   margin: 0 0 0.6rem;
   font-size: 0.8rem;

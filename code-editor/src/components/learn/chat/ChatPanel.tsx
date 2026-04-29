@@ -1,10 +1,16 @@
 import { MessageBubble } from "./MessageBubble";
+import { ModeSwitcher } from "./ModeSwitcher";
 import { SuggestedPrompts } from "./SuggestedPrompts";
-import type { LearnChatMessage, SessionStage } from "../../../types/session";
+import type {
+  LearnChatMessage,
+  LearnMode,
+  SessionStage,
+} from "../../../types/session";
 import "./chat.css";
 
 interface ChatPanelProps {
   messages: LearnChatMessage[];
+  mode: LearnMode;
   sessionStage: SessionStage;
   learningGoal: string;
   inputValue: string;
@@ -12,12 +18,17 @@ interface ChatPanelProps {
   isEvaluating: boolean;
   error: string | null;
   suggestedPrompts: string[];
+  onModeChange: (mode: LearnMode) => void;
   onInputChange: (value: string) => void;
   onSend: () => void;
   onUsePrompt: (prompt: string) => void;
 }
 
-function getStageHint(stage: SessionStage): string {
+function getStageHint(stage: SessionStage, mode: LearnMode): string {
+  if (mode === "copilot") {
+    return "Describe the code you want built or refactored. Co-pilot mode responds directly.";
+  }
+
   switch (stage) {
     case "idle":
       return "Describe what you want to learn in code.";
@@ -40,6 +51,7 @@ function getStageHint(stage: SessionStage): string {
 
 export function ChatPanel({
   messages,
+  mode,
   sessionStage,
   learningGoal,
   inputValue,
@@ -47,6 +59,7 @@ export function ChatPanel({
   isEvaluating,
   error,
   suggestedPrompts,
+  onModeChange,
   onInputChange,
   onSend,
   onUsePrompt,
@@ -57,13 +70,20 @@ export function ChatPanel({
     <section className="learn-chat-panel">
       <header className="learn-chat-panel__header">
         <h2>Learn Agent</h2>
+        <ModeSwitcher
+          mode={mode}
+          onChange={onModeChange}
+          disabled={isSending || isEvaluating}
+        />
       </header>
 
       {learningGoal && (
         <p className="learn-chat-panel__goal">Goal: {learningGoal}</p>
       )}
 
-      <p className="learn-chat-panel__hint">{getStageHint(sessionStage)}</p>
+      <p className="learn-chat-panel__hint">
+        {getStageHint(sessionStage, mode)}
+      </p>
 
       <div className="learn-chat-panel__messages">
         {messages.map((message) => (
