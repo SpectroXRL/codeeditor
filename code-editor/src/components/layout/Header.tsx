@@ -48,10 +48,6 @@ export function Header() {
             <span className="nav-icon">💡</span>
             Learn Mode
           </Link>
-          <Link to="/agentic" className="nav-link nav-link--agentic">
-            <span className="nav-icon">🤖</span>
-            Prompt Engineering
-          </Link>
         </nav>
 
         <div className="header-auth">
