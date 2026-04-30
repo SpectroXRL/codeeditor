@@ -1,9 +1,6 @@
 import { MessageBubble } from "./MessageBubble";
 import { SuggestedPrompts } from "./SuggestedPrompts";
-import type {
-  LearnChatMessage,
-  SessionStage,
-} from "../../../types/session";
+import type { LearnChatMessage, SessionStage } from "../../../types/session";
 import "./chat.css";
 
 interface ChatPanelProps {
@@ -66,9 +63,7 @@ export function ChatPanel({
         <p className="learn-chat-panel__goal">Goal: {learningGoal}</p>
       )}
 
-      <p className="learn-chat-panel__hint">
-        {getStageHint(sessionStage)}
-      </p>
+      <p className="learn-chat-panel__hint">{getStageHint(sessionStage)}</p>
 
       <div className="learn-chat-panel__messages">
         {messages.map((message) => (
