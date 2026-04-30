@@ -5,7 +5,7 @@ import { CodeWorkspace } from "../components/learn/editor/CodeWorkspace";
 import { useTheme } from "../context/ThemeContext";
 import { useCodeExecution } from "../hooks/learn/useCodeExecution";
 import { useLearnSession } from "../hooks/learn/useLearnSession";
-import type { LearnMode, SessionContext } from "../types/session";
+import type { SessionContext } from "../types/session";
 import "./LearnPage.css";
 
 const SUGGESTED_PROMPTS = [
@@ -14,29 +14,9 @@ const SUGGESTED_PROMPTS = [
   "I want to understand functions with parameters.",
 ];
 
-const LEARN_MODE_STORAGE_KEY = "learn-mode";
-
-function getInitialMode(): LearnMode {
-  if (typeof window === "undefined") {
-    return "guided";
-  }
-
-  const storedMode = window.localStorage.getItem(LEARN_MODE_STORAGE_KEY);
-  if (
-    storedMode === "guided" ||
-    storedMode === "explain" ||
-    storedMode === "copilot"
-  ) {
-    return storedMode;
-  }
-
-  return "guided";
-}
-
 export function LearnPage() {
   const { monacoTheme } = useTheme();
   const [inputValue, setInputValue] = useState("");
-  const [mode, setMode] = useState<LearnMode>(getInitialMode);
 
   const {
     selectedLanguage,
@@ -84,13 +64,6 @@ export function LearnPage() {
     [currentCode, learningGoal, runResult, selectedLanguage],
   );
 
-  const handleModeChange = useCallback((nextMode: LearnMode) => {
-    setMode(nextMode);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(LEARN_MODE_STORAGE_KEY, nextMode);
-    }
-  }, []);
-
   const handleSend = useCallback(async () => {
     const trimmed = inputValue.trim();
     if (!trimmed) {
@@ -111,13 +84,11 @@ export function LearnPage() {
     await sendMessage({
       message: trimmed,
       context: buildContext(trimmed),
-      mode,
     });
   }, [
     buildContext,
     currentCode,
     inputValue,
-    mode,
     sendMessage,
     sessionStage,
     triggerEvaluate,
@@ -169,9 +140,7 @@ export function LearnPage() {
             isEvaluating={isEvaluating}
             error={error}
             suggestedPrompts={SUGGESTED_PROMPTS}
-            mode={mode}
             onInputChange={setInputValue}
-            onModeChange={handleModeChange}
             onSend={() => {
               void handleSend();
             }}
