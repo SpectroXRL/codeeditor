@@ -2,9 +2,6 @@
   "functions": {
     "api/execute-code.ts": {
       "maxDuration": 60
-    },
-    "api/chat-assistant.ts": {
-      "maxDuration": 30
     }
   },
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api/$1" }]

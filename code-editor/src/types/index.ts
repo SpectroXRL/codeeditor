@@ -81,19 +81,19 @@ export const STATUS = {
 };
 
 // AI Tutor Types
-export type { AssistanceTier } from './database';
+export type AssistanceTier = 'minimal' | 'guided' | 'detailed';
 
 export interface DetectedIssue {
   type: 'syntax' | 'logic' | 'incomplete' | 'style';
   severity: 'info' | 'warning';
   message: string;
   line?: number;
-  suggestedTier: import('./database').AssistanceTier;
+  suggestedTier: AssistanceTier;
 }
 
 export interface TutorResponse {
   response: string;
-  tier: import('./database').AssistanceTier;
+  tier: AssistanceTier;
   followUpAvailable: boolean;
 }
 
