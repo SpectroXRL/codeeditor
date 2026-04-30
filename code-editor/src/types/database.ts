@@ -1,13 +1,5 @@
 // Supabase Database Types
 
-// ============================================
-// Lesson Type Discriminators
-// ============================================
-
-export type LessonType = 'prompt_engineering' | 'error_recovery';
-
-export type ErrorType = 'syntax' | 'runtime' | 'logic' | 'edge_case' | 'performance';
-
 export interface Subject {
   id: string;
   name: string;
@@ -29,7 +21,6 @@ export interface SubTopic {
   topic_id: string;
   name: string;
   order_index: number;
-  lesson_type?: LessonType; // 'prompt_engineering' | 'error_recovery'
   created_at: string;
 }
 
@@ -49,19 +40,6 @@ export interface Content {
   language_id: number;
   hints: string[];
   created_at: string;
-  
-  // Error Recovery fields (only present when lesson_type = 'error_recovery')
-  broken_code?: string | null;
-  error_message?: string | null;
-  error_type?: ErrorType | null;
-  root_cause_description?: string | null;
-  expected_fix_prompt?: string | null;
-  baseline_test_results?: BaselineTestResult[] | null;
-}
-
-/** Test result with pass/fail state for baseline comparison */
-export interface BaselineTestResult extends TestCase {
-  passed: boolean;
 }
 
 export interface UserProgress {
@@ -89,8 +67,6 @@ export interface Challenge {
   topic_id: string | null;
   subject_id: string | null;
   challenge_type: 'mini_boss' | 'final_boss';
-  challenge_mode?: 'code' | 'agentic'; // 'code' is default for backwards compatibility
-  lesson_type?: LessonType; // 'prompt_engineering' | 'error_recovery'
   title: string;
   description: string;
   starter_code: string;
@@ -102,14 +78,6 @@ export interface Challenge {
   hints_allowed: number;
   hint_penalty: number;
   hints: string[];
-  // Agentic-specific fields (only present when challenge_mode = 'agentic')
-  reference_prompt?: string | null;
-  max_iterations?: number;
-  techniques_covered?: string[];
-  // Error recovery specific fields
-  broken_code?: string | null;
-  error_message?: string | null;
-  error_type?: ErrorType | null;
   created_at: string;
 }
 
@@ -160,266 +128,6 @@ export interface ChallengeWithAttempts extends Challenge {
   latest_attempt?: ChallengeAttempt | null;
 }
 
-// ============================================
-// Agentic Engineering Types
-// ============================================
-
-export type ChallengeMode = 'code' | 'agentic';
-
-export type PromptTechnique = 
-  | 'zero-shot'
-  | 'few-shot'
-  | 'chain-of-thought'
-  | 'system-prompt'
-  | 'iterative-refinement'
-  | 'context-management'
-  | 'tool-calling';
-
-export interface AgenticChallenge extends Challenge {
-  challenge_mode: ChallengeMode;
-  reference_prompt?: string | null;
-  max_iterations: number;
-  techniques_covered: PromptTechnique[];
-}
-
-export interface PromptTurn {
-  id: string;
-  prompt: string;
-  generatedCode: string;
-  agentReasoning: string;
-  timestamp: string;
-  iterationNumber: number;
-}
-
-export interface AgenticAttempt {
-  id: string;
-  challenge_attempt_id: string;
-  user_id: string;
-  prompt_history: PromptTurn[];
-  iterations_used: number;
-  techniques_tagged: PromptTechnique[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PromptScores {
-  id: string;
-  agentic_attempt_id: string;
-  clarity_score: number;
-  efficiency_score: number;
-  context_score: number;
-  technique_score: number;
-  final_score: number;
-  ai_feedback: string | null;
-  heuristics_data: PromptHeuristics;
-  created_at: string;
-}
-
-/**
- * API/UI shape for prompt scores (camelCase, scores only)
- * Used in API responses and UI components
- */
-export interface ApiPromptScores {
-  clarity: number;
-  efficiency: number;
-  context: number;
-  technique: number;
-  final: number;
-}
-
-/**
- * API/UI shape for heuristics data (camelCase)
- */
-export interface ApiHeuristicsData {
-  totalIterations: number;
-  totalPromptTokens: number;
-  averagePromptLength: number;
-  techniquesDetected: PromptTechnique[];
-  improvementBetweenIterations: boolean;
-  firstAttemptSuccess: boolean;
-}
-
-export interface PromptHeuristics {
-  total_iterations: number;
-  total_prompt_tokens: number;
-  average_prompt_length: number;
-  techniques_detected: PromptTechnique[];
-  improvement_between_iterations: boolean;
-  first_attempt_success: boolean;
-}
-
-export interface PromptValidationLog {
-  id: string;
-  user_id: string;
-  attempt_id: string | null;
-  prompt_text: string;
-  validation_result: 'passed' | 'blocked';
-  blocked_reason: string | null;
-  risk_level: 'low' | 'medium' | 'high';
-  created_at: string;
-}
-
-// Scoring rubric weights (configurable per challenge)
-export interface PromptRubric {
-  clarity_weight: number;
-  efficiency_weight: number;
-  context_weight: number;
-  technique_weight: number;
-}
-
-// Default rubric
-export const DEFAULT_PROMPT_RUBRIC: PromptRubric = {
-  clarity_weight: 0.30,
-  efficiency_weight: 0.25,
-  context_weight: 0.20,
-  technique_weight: 0.25,
-};
-
-// Technique metadata for UI
-export const PROMPT_TECHNIQUES: Record<PromptTechnique, { label: string; description: string }> = {
-  'zero-shot': {
-    label: 'Zero-Shot',
-    description: 'Direct instruction without examples'
-  },
-  'few-shot': {
-    label: 'Few-Shot',
-    description: 'Providing examples to guide the output'
-  },
-  'chain-of-thought': {
-    label: 'Chain-of-Thought',
-    description: 'Encouraging step-by-step reasoning'
-  },
-  'system-prompt': {
-    label: 'System Prompt / Role',
-    description: 'Setting context or persona for the agent'
-  },
-  'iterative-refinement': {
-    label: 'Iterative Refinement',
-    description: 'Building on previous responses to improve output'
-  },
-  'context-management': {
-    label: 'Context Management',
-    description: 'Strategic inclusion/exclusion of information'
-  },
-  'tool-calling': {
-    label: 'Tool/Function Calling',
-    description: 'Instructing the agent to use specific capabilities'
-  },
-};
-
 export interface SubTopicWithProgress extends SubTopic {
   user_progress?: UserProgress | null;
 }
-
-export interface SubTopicWithProgress extends SubTopic {
-  user_progress?: UserProgress | null;
-}
-
-// ============================================
-// Error Recovery Types
-// ============================================
-
-/**
- * Database shape for error recovery scores (snake_case)
- */
-export interface ErrorRecoveryScores {
-  id: string;
-  agentic_attempt_id: string;
-  diagnosis_score: number;
-  fix_precision_score: number;
-  iteration_economy_score: number;
-  no_regression_score: number;
-  final_score: number;
-  ai_feedback: string | null;
-  error_type_detected: ErrorType | null;
-  heuristics_data: ErrorRecoveryHeuristics;
-  test_diff_data: TestDiffData;
-  created_at: string;
-}
-
-/**
- * API/UI shape for error recovery scores (camelCase, scores only)
- */
-export interface ApiErrorRecoveryScores {
-  diagnosis: number;
-  fixPrecision: number;
-  iterationEconomy: number;
-  noRegression: number;
-  final: number;
-}
-
-/**
- * Heuristics data for error recovery scoring
- */
-export interface ErrorRecoveryHeuristics {
-  totalIterations: number;
-  promptReferencesError: boolean;
-  promptIdentifiesRootCause: boolean;
-  fixIsMinimal: boolean;
-  fullRewriteDetected: boolean;
-  firstAttemptSuccess: boolean;
-}
-
-/**
- * Test diff data for no-regression scoring
- */
-export interface TestDiffData {
-  before: TestResultState[];
-  after: TestResultState[];
-  regressions: TestResultState[];
-  newlyPassing: TestResultState[];
-}
-
-export interface TestResultState {
-  input: string;
-  expectedOutput: string;
-  actualOutput?: string;
-  passed: boolean;
-}
-
-/**
- * Scoring rubric weights for error recovery
- */
-export interface ErrorRecoveryRubric {
-  diagnosis_weight: number;
-  fix_precision_weight: number;
-  iteration_economy_weight: number;
-  no_regression_weight: number;
-}
-
-/**
- * Default rubric for error recovery scoring
- * Diagnosis: 30%, Fix Precision: 30%, Economy: 20%, No Regression: 20%
- */
-export const DEFAULT_ERROR_RECOVERY_RUBRIC: ErrorRecoveryRubric = {
-  diagnosis_weight: 0.30,
-  fix_precision_weight: 0.30,
-  iteration_economy_weight: 0.20,
-  no_regression_weight: 0.20,
-};
-
-/**
- * Error type metadata for UI
- */
-export const ERROR_TYPES: Record<ErrorType, { label: string; description: string }> = {
-  'syntax': {
-    label: 'Syntax Error',
-    description: 'Missing brackets, typos, invalid syntax'
-  },
-  'runtime': {
-    label: 'Runtime Error',
-    description: 'Null references, type errors, undefined variables'
-  },
-  'logic': {
-    label: 'Logic Bug',
-    description: 'Off-by-one errors, wrong conditions, infinite loops'
-  },
-  'edge_case': {
-    label: 'Edge Case Failure',
-    description: 'Empty input, boundary conditions, special values'
-  },
-  'performance': {
-    label: 'Performance Issue',
-    description: 'Timeout, memory issues, inefficient algorithms'
-  },
-};

@@ -4,9 +4,6 @@ import { ToastContainer } from "./components/Toast";
 import { HomePage } from "./pages/HomePage";
 import { SubjectPage } from "./pages/SubjectPage";
 import { ChallengePage } from "./pages/ChallengePage";
-import { AgenticChallengePage } from "./pages/AgenticChallengePage";
-import { AgenticHomePage } from "./pages/AgenticHomePage";
-import { AgenticPracticePage } from "./pages/AgenticPracticePage";
 import { LearnPage } from "./pages/LearnPage";
 import "./App.css";
 
@@ -23,16 +20,6 @@ function App() {
           <Route
             path="/challenge/subject/:subjectId"
             element={<ChallengePage />}
-          />
-          {/* Agentic (Prompt Engineering) routes */}
-          <Route path="/agentic" element={<AgenticHomePage />} />
-          <Route
-            path="/agentic/practice/:lessonId"
-            element={<AgenticPracticePage />}
-          />
-          <Route
-            path="/agentic-challenge/:challengeId"
-            element={<AgenticChallengePage />}
           />
         </Routes>
         <ToastContainer />
