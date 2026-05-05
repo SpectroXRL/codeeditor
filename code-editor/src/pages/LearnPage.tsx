@@ -1,4 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
+import {
+  Group,
+  Panel,
+  Separator,
+  useDefaultLayout,
+} from "react-resizable-panels";
 import { PageLayout } from "../components/layout/PageLayout";
 import { ChatPanel } from "../components/learn/chat/ChatPanel";
 import { CodeWorkspace } from "../components/learn/editor/CodeWorkspace";
@@ -121,6 +127,10 @@ export function LearnPage() {
     [totalUserMessages],
   );
 
+  const { defaultLayout, onLayoutChanged } = useDefaultLayout({
+    id: "learn-page-split",
+  });
+
   return (
     <PageLayout>
       <div className="learn-page">
@@ -142,40 +152,51 @@ export function LearnPage() {
           </button>
         </header>
 
-        <div className="learn-page__grid">
-          <ChatPanel
-            messages={chatHistory}
-            sessionStage={sessionStage}
-            learningGoal={learningGoal}
-            inputValue={inputValue}
-            isSending={isSending}
-            isEvaluating={isEvaluating}
-            error={error}
-            suggestedPrompts={SUGGESTED_PROMPTS}
-            followUps={followUps}
-            onInputChange={setInputValue}
-            onSend={() => {
-              void handleSend();
-            }}
-            onUsePrompt={handleUsePrompt}
-            onSelectFollowUp={handleSelectFollowUp}
-          />
+        <Group
+          className="learn-page__grid"
+          orientation="horizontal"
+          defaultLayout={defaultLayout}
+          onLayoutChanged={onLayoutChanged}
+        >
+          <Panel id="chat" defaultSize="40" minSize="25">
+            <ChatPanel
+              messages={chatHistory}
+              sessionStage={sessionStage}
+              learningGoal={learningGoal}
+              inputValue={inputValue}
+              isSending={isSending}
+              isEvaluating={isEvaluating}
+              error={error}
+              suggestedPrompts={SUGGESTED_PROMPTS}
+              followUps={followUps}
+              onInputChange={setInputValue}
+              onSend={() => {
+                void handleSend();
+              }}
+              onUsePrompt={handleUsePrompt}
+              onSelectFollowUp={handleSelectFollowUp}
+            />
+          </Panel>
 
-          <CodeWorkspace
-            selectedLanguage={selectedLanguage}
-            currentCode={currentCode}
-            runResult={runResult}
-            runError={runError}
-            outputText={outputText}
-            isRunning={isRunning}
-            theme={monacoTheme}
-            onLanguageChange={changeLanguage}
-            onCodeChange={setCurrentCode}
-            onRun={() => {
-              void runCurrentCode();
-            }}
-          />
-        </div>
+          <Separator className="learn-page__resize-handle" />
+
+          <Panel id="code" defaultSize="60" minSize="35">
+            <CodeWorkspace
+              selectedLanguage={selectedLanguage}
+              currentCode={currentCode}
+              runResult={runResult}
+              runError={runError}
+              outputText={outputText}
+              isRunning={isRunning}
+              theme={monacoTheme}
+              onLanguageChange={changeLanguage}
+              onCodeChange={setCurrentCode}
+              onRun={() => {
+                void runCurrentCode();
+              }}
+            />
+          </Panel>
+        </Group>
       </div>
     </PageLayout>
   );
