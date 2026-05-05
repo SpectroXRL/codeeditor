@@ -110,6 +110,32 @@
   cursor: pointer;
 }
 
+.learn-follow-ups {
+  margin-top: 0.75rem;
+}
+
+.learn-follow-ups__label {
+  margin: 0 0 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.learn-follow-ups__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.learn-follow-ups__chip {
+  border: 1px solid var(--accent);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
 .learn-chat-panel__reflect-btn {
   margin-top: 0.75rem;
   border: 1px solid var(--success);

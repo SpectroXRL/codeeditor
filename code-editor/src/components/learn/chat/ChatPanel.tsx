@@ -1,7 +1,10 @@
 import { MessageBubble } from "./MessageBubble";
+import { FollowUpBubbles } from "./FollowUpBubbles";
 import { SuggestedPrompts } from "./SuggestedPrompts";
 import type { LearnChatMessage, SessionStage } from "../../../types/session";
 import "./chat.css";
+
+const FOLLOW_UP_STAGES: SessionStage[] = ["teach", "practice", "check_in", "challenge"];
 
 interface ChatPanelProps {
   messages: LearnChatMessage[];
@@ -12,9 +15,11 @@ interface ChatPanelProps {
   isEvaluating: boolean;
   error: string | null;
   suggestedPrompts: string[];
+  followUps: string[];
   onInputChange: (value: string) => void;
   onSend: () => void;
   onUsePrompt: (prompt: string) => void;
+  onSelectFollowUp: (prompt: string) => void;
 }
 
 function getStageHint(stage: SessionStage): string {
@@ -47,9 +52,11 @@ export function ChatPanel({
   isEvaluating,
   error,
   suggestedPrompts,
+  followUps,
   onInputChange,
   onSend,
   onUsePrompt,
+  onSelectFollowUp,
 }: ChatPanelProps) {
   const hasLinkInInput = /https:\/\/\S+/i.test(inputValue);
 
@@ -70,6 +77,10 @@ export function ChatPanel({
           <MessageBubble key={message.id} message={message} />
         ))}
       </div>
+
+      {FOLLOW_UP_STAGES.includes(sessionStage) && (
+        <FollowUpBubbles followUps={followUps} onSelect={onSelectFollowUp} />
+      )}
 
       {sessionStage === "idle" && (
         <SuggestedPrompts prompts={suggestedPrompts} onSelect={onUsePrompt} />
