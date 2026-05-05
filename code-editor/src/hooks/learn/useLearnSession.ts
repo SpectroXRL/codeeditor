@@ -50,6 +50,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
   const [chatHistory, setChatHistory] = useState<LearnChatMessage[]>([
     INITIAL_AGENT_MESSAGE,
   ]);
+  const [followUps, setFollowUps] = useState<string[]>([]);
   const [sessionStage, setSessionStage] = useState<SessionStage>('idle');
   const [learningGoal, setLearningGoal] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -83,6 +84,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
       }
 
       setError(null);
+      setFollowUps([]);
       appendUserMessage(trimmed);
       setIsSending(true);
 
@@ -94,6 +96,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
         });
 
         appendAgentMessage(response.response, response.messageType, response.starterCode);
+        setFollowUps(response.followUps ?? []);
         setSessionStage(response.nextStage);
 
         if (response.learningGoal) {
@@ -139,6 +142,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
         appendUserMessage(explanation);
       }
 
+      setFollowUps([]);
       setIsEvaluating(true);
       setError(null);
 
@@ -179,6 +183,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
 
   const resetSession = useCallback(() => {
     setChatHistory([INITIAL_AGENT_MESSAGE]);
+    setFollowUps([]);
     setSessionStage('idle');
     setLearningGoal('');
     setStarterBaselineCode('');
@@ -192,6 +197,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
 
   return {
     chatHistory,
+    followUps,
     sessionStage,
     learningGoal,
     totalUserMessages,

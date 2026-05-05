@@ -33,6 +33,7 @@ export function LearnPage() {
 
   const {
     chatHistory,
+    followUps,
     sessionStage,
     learningGoal,
     totalUserMessages,
@@ -101,6 +102,17 @@ export function LearnPage() {
     [setInputValue],
   );
 
+  const handleSelectFollowUp = useCallback(
+    (prompt: string) => {
+      setInputValue("");
+      void sendMessage({
+        message: prompt,
+        context: buildContext(prompt),
+      });
+    },
+    [buildContext, sendMessage],
+  );
+
   const headerCopy = useMemo(
     () =>
       totalUserMessages === 0
@@ -140,11 +152,13 @@ export function LearnPage() {
             isEvaluating={isEvaluating}
             error={error}
             suggestedPrompts={SUGGESTED_PROMPTS}
+            followUps={followUps}
             onInputChange={setInputValue}
             onSend={() => {
               void handleSend();
             }}
             onUsePrompt={handleUsePrompt}
+            onSelectFollowUp={handleSelectFollowUp}
           />
 
           <CodeWorkspace

@@ -49,6 +49,7 @@ export interface LearnChatMessage {
   content: string;
   messageType: LearnMessageType;
   starterCode?: string;
+  followUps?: string[];
   timestamp: string;
 }
 
@@ -67,6 +68,7 @@ export interface LearnSessionMessageResponse {
   nextStage: SessionStage;
   messageType: LearnMessageType;
   learningGoal?: string;
+  followUps?: string[];
 }
 
 export interface LearnSessionEvaluateResponse {
