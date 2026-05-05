@@ -16,6 +16,7 @@ import {
   fetchAndExtract,
   validateUrl,
 } from '../../lib/urlFetcher.js';
+import { normalizeFollowUps } from '../../lib/normalizeFollowUps.js';
 
 type SessionStage =
   | 'idle'
@@ -70,6 +71,7 @@ interface LearnMessageResponse {
   nextStage: SessionStage;
   messageType: MessageType;
   learningGoal?: string;
+  followUps?: string[];
 }
 
 interface ResourceContextPayload {
@@ -85,6 +87,13 @@ const STAGES: SessionStage[] = [
   'practice',
   'check_in',
   'reflect',
+  'challenge',
+];
+
+const FOLLOW_UP_STAGES: SessionStage[] = [
+  'teach',
+  'practice',
+  'check_in',
   'challenge',
 ];
 
@@ -149,13 +158,20 @@ Stage behavior:
 - reflect: ask student to explain their understanding back; check conceptual clarity.
 - challenge: propose one small challenge aligned with what they just learned.
 
+Follow-up questions:
+- For teach/practice/check_in/challenge stages, generate 3 to 5 concise follow-up questions in followUps.
+- Balance breadth and depth across the followUps list.
+- Keep followUps tightly relevant to the current student message and code context.
+- For idle/clarify/reflect stages, return followUps as an empty array.
+
 Output must be valid JSON with this exact shape:
 {
   "response": "string",
   "starterCode": "string optional",
   "nextStage": "idle|clarify|teach|practice|check_in|reflect|challenge",
   "messageType": "chat|clarifying_question|starter_code|feedback|evaluation|challenge",
-  "learningGoal": "string optional"
+  "learningGoal": "string optional",
+  "followUps": ["string", "string", "string"]
 }
 
 Rules:
@@ -166,6 +182,7 @@ Rules:
 - If a Provided Resource section is present, use it as the primary basis for the lesson and extract the most relevant coding concepts.
 - If the Provided Resource says content could not be fetched, ask the student to paste the relevant excerpt before continuing.
 - Prefer JavaScript/TypeScript syntax if language context is unclear.
+- followUps must contain 3 to 5 questions only in teach/practice/check_in/challenge. Otherwise use an empty array.
 - Never output Markdown fences around JSON.`;
 }
 
@@ -227,12 +244,19 @@ function normalizeResponse(
       ? parsed.starterCode
       : undefined;
 
+  const followUps = FOLLOW_UP_STAGES.includes(parsedStage)
+    ? normalizeFollowUps(parsed.followUps).slice(0, 5)
+    : [];
+
+  const validFollowUps = followUps.length >= 3 ? followUps : [];
+
   return {
     response,
     starterCode,
     nextStage: parsedStage,
     messageType,
     learningGoal,
+    followUps: validFollowUps,
   };
 }
 
@@ -272,6 +296,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         response: getSafeBlockMessage(validation.blockedReason || 'Blocked request'),
         nextStage: stage,
         messageType: 'refusal',
+        followUps: [],
       } satisfies LearnMessageResponse);
     }
 
@@ -281,6 +306,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         response: 'Your current code could not be processed safely. Try shortening it or removing unsafe content and continue.',
         nextStage: stage,
         messageType: 'refusal',
+        followUps: [],
       } satisfies LearnMessageResponse);
     }
 
@@ -290,6 +316,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         response: getDomainRefusalMessage(classification),
         nextStage: stage,
         messageType: 'refusal',
+        followUps: [],
       } satisfies LearnMessageResponse);
     }
 
@@ -319,6 +346,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 'I cannot open that link because it appears unsafe. Please share a trusted docs URL or paste the relevant excerpt.',
               nextStage: stage,
               messageType: 'refusal',
+              followUps: [],
             } satisfies LearnMessageResponse);
           }
 
@@ -355,9 +383,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const openai = new OpenAI({ apiKey });
     const baseMessages = [
-      { role: 'system', content: buildSystemPrompt(stage) },
+      { role: 'system' as const, content: buildSystemPrompt(stage) },
       {
-        role: 'user',
+        role: 'user' as const,
         content: buildContextMessage(
           validation.sanitized,
           body.context,
@@ -374,7 +402,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       max_tokens: 1200,
       messages: baseMessages,
     });
-    let raw = completion.choices[0]?.message?.content;
+    const raw = completion.choices[0]?.message?.content;
 
     if (!raw) {
       return res.status(500).json({ error: 'No response from AI service' });
