@@ -1,10 +1,16 @@
+import { useEffect, useRef } from "react";
 import { MessageBubble } from "./MessageBubble";
 import { FollowUpBubbles } from "./FollowUpBubbles";
 import { SuggestedPrompts } from "./SuggestedPrompts";
 import type { LearnChatMessage, SessionStage } from "../../../types/session";
 import "./chat.css";
 
-const FOLLOW_UP_STAGES: SessionStage[] = ["teach", "practice", "check_in", "challenge"];
+const FOLLOW_UP_STAGES: SessionStage[] = [
+  "teach",
+  "practice",
+  "check_in",
+  "challenge",
+];
 
 interface ChatPanelProps {
   messages: LearnChatMessage[];
@@ -58,6 +64,12 @@ export function ChatPanel({
   onUsePrompt,
   onSelectFollowUp,
 }: ChatPanelProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const hasLinkInInput = /https:\/\/\S+/i.test(inputValue);
 
   return (
@@ -76,6 +88,7 @@ export function ChatPanel({
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
+        <div ref={bottomRef} />
       </div>
 
       {FOLLOW_UP_STAGES.includes(sessionStage) && (
