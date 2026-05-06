@@ -7,14 +7,21 @@ export function HomePage() {
     <PageLayout>
       <div className="home-page">
         <section className="hero">
-          <h1>Learn to Code</h1>
-          <p>
-            Master programming through hands-on practice. Write real code, run
-            tests, and track your progress.
-          </p>
-          <Link to="/learn" className="hero-cta">
-            Start Learning
-          </Link>
+          <div className="hero__heading">
+            <h1>
+              <span className="hero__learn-to">Learn To</span>
+              <span className="hero__code">Code</span>
+            </h1>
+          </div>
+          <div className="hero__right">
+            <p>
+              Master programming through hands-on practice. Write real code, run
+              tests, and track your progress.
+            </p>
+            <Link to="/learn" className="hero-cta">
+              Start Learning
+            </Link>
+          </div>
         </section>
       </div>
     </PageLayout>
