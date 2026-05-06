@@ -5,15 +5,28 @@
 }
 
 .hero {
-  text-align: center;
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  align-items: center;
+  gap: 3rem;
   margin-bottom: 60px;
 }
 
 .hero h1 {
-  font-size: 3rem;
+  font-size: 5.5rem;
   font-weight: 700;
-  margin: 0 0 16px 0;
-  background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
+  margin: 0;
+  line-height: 1.05;
+}
+
+.hero__learn-to {
+  display: block;
+  color: var(--text-primary);
+}
+
+.hero__code {
+  display: block;
+  background: linear-gradient(135deg, #f97316 0%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -22,8 +35,7 @@
 .hero p {
   font-size: 1.25rem;
   color: var(--text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
   line-height: 1.6;
 }
 
@@ -45,8 +57,13 @@
 }
 
 @media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
   .hero h1 {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 
   .hero p {
