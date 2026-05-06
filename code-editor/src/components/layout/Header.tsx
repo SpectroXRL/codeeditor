@@ -43,13 +43,6 @@ export function Header() {
           <h1>CodeLearn</h1>
         </Link>
 
-        <nav className="header-nav">
-          <Link to="/learn" className="nav-link nav-link--learn">
-            <span className="nav-icon">💡</span>
-            Learn Mode
-          </Link>
-        </nav>
-
         <div className="header-auth">
           {loading ? (
             <span className="auth-loading">Loading...</span>
