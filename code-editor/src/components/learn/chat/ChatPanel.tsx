@@ -26,6 +26,7 @@ interface ChatPanelProps {
   onSend: () => void;
   onUsePrompt: (prompt: string) => void;
   onSelectFollowUp: (prompt: string) => void;
+  onReset: () => void;
 }
 
 function getStageHint(stage: SessionStage): string {
@@ -63,6 +64,7 @@ export function ChatPanel({
   onSend,
   onUsePrompt,
   onSelectFollowUp,
+  onReset,
 }: ChatPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -76,6 +78,9 @@ export function ChatPanel({
     <section className="learn-chat-panel">
       <header className="learn-chat-panel__header">
         <h2>Learn Agent</h2>
+        <button type="button" className="learn-page__reset" onClick={onReset}>
+          Reset
+        </button>
       </header>
 
       {learningGoal && (

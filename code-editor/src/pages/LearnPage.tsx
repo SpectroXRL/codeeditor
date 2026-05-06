@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Group,
   Panel,
@@ -42,7 +42,6 @@ export function LearnPage() {
     followUps,
     sessionStage,
     learningGoal,
-    totalUserMessages,
     isSending,
     isEvaluating,
     error,
@@ -119,14 +118,6 @@ export function LearnPage() {
     [buildContext, sendMessage],
   );
 
-  const headerCopy = useMemo(
-    () =>
-      totalUserMessages === 0
-        ? "Ask your first coding-learning question to start the session."
-        : `${totalUserMessages} prompt${totalUserMessages === 1 ? "" : "s"} sent in this session.`,
-    [totalUserMessages],
-  );
-
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "learn-page-split",
   });
@@ -134,24 +125,6 @@ export function LearnPage() {
   return (
     <PageLayout>
       <div className="learn-page">
-        <header className="learn-page__header">
-          <div>
-            <h1>Learn Mode</h1>
-            <p>{headerCopy}</p>
-          </div>
-          <button
-            type="button"
-            className="learn-page__reset"
-            onClick={() => {
-              resetSession();
-              setCurrentCode(selectedLanguage.template);
-              setRunResult(null);
-            }}
-          >
-            Reset Session
-          </button>
-        </header>
-
         <Group
           className="learn-page__grid"
           orientation="horizontal"
@@ -175,6 +148,11 @@ export function LearnPage() {
               }}
               onUsePrompt={handleUsePrompt}
               onSelectFollowUp={handleSelectFollowUp}
+              onReset={() => {
+                resetSession();
+                setCurrentCode(selectedLanguage.template);
+                setRunResult(null);
+              }}
             />
           </Panel>
 
