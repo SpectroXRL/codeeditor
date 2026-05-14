@@ -200,3 +200,23 @@
   font-size: 0.76rem;
   color: var(--text-secondary);
 }
+
+.learn-chat-panel__reset-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.learn-chat-panel__reset-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
