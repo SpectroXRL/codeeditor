@@ -17,6 +17,7 @@
     "openai": "^6.32.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.11.0",
     "react-router-dom": "^7.13.1",

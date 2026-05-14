@@ -9,6 +9,10 @@ vi.mock('../../../services/learnSession', () => ({
   evaluateLearnSession: vi.fn(),
 }));
 
+vi.mock('../../../context/useAuth', () => ({
+  useAuth: vi.fn(() => ({ session: null, user: null, loading: false, signUp: vi.fn(), signIn: vi.fn(), signOut: vi.fn() })),
+}));
+
 const mockedSendLearnSessionMessage = vi.mocked(sendLearnSessionMessage);
 
 const context: SessionContext = {

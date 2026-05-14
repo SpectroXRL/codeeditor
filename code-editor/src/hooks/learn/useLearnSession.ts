@@ -1,11 +1,15 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
+  endLearnSession,
   evaluateLearnSession,
   sendLearnSessionMessage,
 } from '../../services/learnSession';
+import { useAuth } from '../../context/useAuth';
 import type {
   LearnChatMessage,
   SessionContext,
+  SessionLanguage,
   SessionStage,
 } from '../../types/session';
 
@@ -22,6 +26,10 @@ interface EvaluateArgs {
   context: SessionContext;
   currentCode: string;
   studentExplanation?: string;
+}
+
+interface ResetSessionArgs {
+  selectedLanguage?: SessionLanguage;
 }
 
 function createMessage(
@@ -47,6 +55,7 @@ const INITIAL_AGENT_MESSAGE = createMessage(
 );
 
 export function useLearnSession(options: UseLearnSessionOptions = {}) {
+  const { session } = useAuth();
   const [chatHistory, setChatHistory] = useState<LearnChatMessage[]>([
     INITIAL_AGENT_MESSAGE,
   ]);
@@ -56,7 +65,10 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
   const [isSending, setIsSending] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [memoryWritten, setMemoryWritten] = useState(false);
+  const memoryWrittenRef = useRef(false);
   const [starterBaselineCode, setStarterBaselineCode] = useState<string>('');
+  const [struggledWith, setStruggledWith] = useState<Record<string, number>>({});
 
   const appendAgentMessage = useCallback(
     (
@@ -85,18 +97,37 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
 
       setError(null);
       setFollowUps([]);
+      setMemoryWritten(false);
       appendUserMessage(trimmed);
       setIsSending(true);
 
       try {
-        const response = await sendLearnSessionMessage({
-          message: trimmed,
-          context,
-          sessionStage,
-        });
+        const response = await sendLearnSessionMessage(
+          {
+            message: trimmed,
+            context,
+            sessionStage,
+          },
+          session?.access_token ?? undefined,
+        );
 
         appendAgentMessage(response.response, response.messageType, response.starterCode);
         setFollowUps(response.followUps ?? []);
+
+        if (response.memoryWritten === true && !memoryWrittenRef.current) {
+          memoryWrittenRef.current = true;
+          setMemoryWritten(true);
+          toast('Memory updated');
+        }
+
+        if (
+          sessionStage === 'check_in' &&
+          (response.nextStage === 'teach' || response.nextStage === 'practice')
+        ) {
+          const key = learningGoal || trimmed;
+          setStruggledWith((prev) => ({ ...prev, [key]: (prev[key] ?? 0) + 1 }));
+        }
+
         setSessionStage(response.nextStage);
 
         if (response.learningGoal) {
@@ -127,7 +158,9 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
       isSending,
       learningGoal,
       options,
+      session,
       sessionStage,
+      struggledWith,
     ],
   );
 
@@ -181,14 +214,38 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
     ],
   );
 
-  const resetSession = useCallback(() => {
-    setChatHistory([INITIAL_AGENT_MESSAGE]);
-    setFollowUps([]);
-    setSessionStage('idle');
-    setLearningGoal('');
-    setStarterBaselineCode('');
-    setError(null);
-  }, []);
+  const resetSession = useCallback(
+    (args?: ResetSessionArgs) => {
+      // Capture pre-reset state for the end payload
+      const endPayload = { chatHistory, learningGoal, struggledWith, selectedLanguage: args?.selectedLanguage };
+      const token = session?.access_token;
+
+      // Reset state synchronously before any async work
+      memoryWrittenRef.current = false;
+      setChatHistory([INITIAL_AGENT_MESSAGE]);
+      setFollowUps([]);
+      setSessionStage('idle');
+      setLearningGoal('');
+      setStarterBaselineCode('');
+      setError(null);
+      setMemoryWritten(false);
+      setStruggledWith({});
+
+      if (token) {
+        endLearnSession(endPayload, token)
+          .then((res) => {
+            if (res.memoryWritten) {
+              setMemoryWritten(true);
+              toast('Memory updated');
+            }
+          })
+          .catch(() => {
+            // fire-and-forget — errors are silent
+          });
+      }
+    },
+    [chatHistory, learningGoal, session, struggledWith],
+  );
 
   const totalUserMessages = useMemo(
     () => chatHistory.filter((message) => message.role === 'user').length,
@@ -200,10 +257,12 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
     followUps,
     sessionStage,
     learningGoal,
+    struggledWith,
     totalUserMessages,
     isSending,
     isEvaluating,
     error,
+    memoryWritten,
     sendMessage,
     triggerEvaluate,
     resetSession,
