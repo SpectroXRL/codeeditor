@@ -3,6 +3,7 @@ import {
   evaluateLearnSession,
   sendLearnSessionMessage,
 } from '../../services/learnSession';
+import { useAuth } from '../../context/useAuth';
 import type {
   LearnChatMessage,
   SessionContext,
@@ -47,6 +48,7 @@ const INITIAL_AGENT_MESSAGE = createMessage(
 );
 
 export function useLearnSession(options: UseLearnSessionOptions = {}) {
+  const { session } = useAuth();
   const [chatHistory, setChatHistory] = useState<LearnChatMessage[]>([
     INITIAL_AGENT_MESSAGE,
   ]);
@@ -56,7 +58,9 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
   const [isSending, setIsSending] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [memoryWritten, setMemoryWritten] = useState(false);
   const [starterBaselineCode, setStarterBaselineCode] = useState<string>('');
+  const [struggledWith, setStruggledWith] = useState<Record<string, number>>({});
 
   const appendAgentMessage = useCallback(
     (
@@ -85,18 +89,32 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
 
       setError(null);
       setFollowUps([]);
+      setMemoryWritten(false);
       appendUserMessage(trimmed);
       setIsSending(true);
 
       try {
-        const response = await sendLearnSessionMessage({
-          message: trimmed,
-          context,
-          sessionStage,
-        });
+        const response = await sendLearnSessionMessage(
+          {
+            message: trimmed,
+            context,
+            sessionStage,
+          },
+          session?.access_token ?? undefined,
+        );
 
         appendAgentMessage(response.response, response.messageType, response.starterCode);
         setFollowUps(response.followUps ?? []);
+        setMemoryWritten(response.memoryWritten === true);
+
+        if (
+          sessionStage === 'check_in' &&
+          (response.nextStage === 'teach' || response.nextStage === 'practice')
+        ) {
+          const key = learningGoal || trimmed;
+          setStruggledWith((prev) => ({ ...prev, [key]: (prev[key] ?? 0) + 1 }));
+        }
+
         setSessionStage(response.nextStage);
 
         if (response.learningGoal) {
@@ -127,7 +145,9 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
       isSending,
       learningGoal,
       options,
+      session,
       sessionStage,
+      struggledWith,
     ],
   );
 
@@ -188,6 +208,7 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
     setLearningGoal('');
     setStarterBaselineCode('');
     setError(null);
+    setStruggledWith({});
   }, []);
 
   const totalUserMessages = useMemo(
@@ -200,10 +221,12 @@ export function useLearnSession(options: UseLearnSessionOptions = {}) {
     followUps,
     sessionStage,
     learningGoal,
+    struggledWith,
     totalUserMessages,
     isSending,
     isEvaluating,
     error,
+    memoryWritten,
     sendMessage,
     triggerEvaluate,
     resetSession,
