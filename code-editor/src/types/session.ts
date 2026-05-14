@@ -69,6 +69,8 @@ export interface LearnSessionMessageResponse {
   messageType: LearnMessageType;
   learningGoal?: string;
   followUps?: string[];
+  detectedStyle?: string | null;
+  memoryWritten?: boolean;
 }
 
 export interface LearnSessionEvaluateResponse {
