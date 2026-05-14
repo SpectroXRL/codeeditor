@@ -155,29 +155,51 @@
 }
 
 .learn-chat-panel__composer {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.5rem;
+  position: relative;
   margin-top: 0.75rem;
-}
-
-.learn-chat-panel__composer textarea {
-  width: 100%;
-  resize: vertical;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--bg-input);
-  color: var(--text-primary);
-  padding: 0.6rem;
+  transition: border-color 0.15s ease;
 }
 
-.learn-chat-panel__composer button {
+.learn-chat-panel__composer:focus-within {
+  border-color: var(--accent);
+}
+
+.learn-chat-panel__composer textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: none;
   border-radius: 8px;
-  border: 1px solid var(--accent);
-  background: var(--accent-hover);
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0.6rem 0.6rem 2.5rem;
+  outline: none;
+}
+
+.learn-chat-panel__send-btn {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--accent);
   color: white;
-  padding: 0.6rem 0.9rem;
   cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.learn-chat-panel__send-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .learn-chat-panel__stage-status {
