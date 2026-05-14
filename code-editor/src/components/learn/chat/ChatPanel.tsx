@@ -15,7 +15,6 @@ const FOLLOW_UP_STAGES: SessionStage[] = [
 interface ChatPanelProps {
   messages: LearnChatMessage[];
   sessionStage: SessionStage;
-  learningGoal: string;
   inputValue: string;
   isSending: boolean;
   isEvaluating: boolean;
@@ -53,7 +52,6 @@ function getStageHint(stage: SessionStage): string {
 export function ChatPanel({
   messages,
   sessionStage,
-  learningGoal,
   inputValue,
   isSending,
   isEvaluating,
@@ -82,10 +80,6 @@ export function ChatPanel({
           Reset
         </button>
       </header>
-
-      {learningGoal && (
-        <p className="learn-chat-panel__goal">Goal: {learningGoal}</p>
-      )}
 
       <p className="learn-chat-panel__hint">{getStageHint(sessionStage)}</p>
 
