@@ -135,7 +135,6 @@ export function LearnPage() {
             <ChatPanel
               messages={chatHistory}
               sessionStage={sessionStage}
-              learningGoal={learningGoal}
               inputValue={inputValue}
               isSending={isSending}
               isEvaluating={isEvaluating}
