@@ -118,8 +118,27 @@ export function ChatPanel({
           type="button"
           onClick={onSend}
           disabled={!inputValue.trim() || isSending || isEvaluating}
+          aria-label={
+            isSending ? "Sending" : isEvaluating ? "Evaluating" : "Send"
+          }
+          className="learn-chat-panel__send-btn"
         >
-          {isSending ? "Sending..." : isEvaluating ? "Evaluating..." : "Send"}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M8 14V2M8 2L3 7M8 2L13 7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
       </div>
 
