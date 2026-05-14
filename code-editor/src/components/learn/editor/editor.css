@@ -16,6 +16,9 @@
 }
 
 .learn-editor__run {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   border: 1px solid var(--accent);
   background: var(--gradient-accent);
   color: white;
@@ -23,6 +26,10 @@
   padding: 0.5rem 0.85rem;
   cursor: pointer;
   font-weight: 600;
+}
+
+.learn-editor__run-spinner {
+  animation: btn-spin 0.8s linear infinite;
 }
 
 .learn-editor__workspace {
