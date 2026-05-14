@@ -1,4 +1,5 @@
 import type {
+  LearnSessionEndResponse,
   LearnSessionEvaluateResponse,
   LearnSessionMessageResponse,
   SessionContext,
@@ -21,11 +22,13 @@ interface EvaluateRequest {
 async function postJson<TResponse>(
   url: string,
   body: object,
+  headers?: Record<string, string>,
 ): Promise<TResponse> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...headers,
     },
     body: JSON.stringify(body),
   });
@@ -43,12 +46,32 @@ async function postJson<TResponse>(
 
 export function sendLearnSessionMessage(
   payload: MessageRequest,
+  token?: string,
 ): Promise<LearnSessionMessageResponse> {
-  return postJson<LearnSessionMessageResponse>('/api/learn-session/message', payload);
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return postJson<LearnSessionMessageResponse>('/api/learn-session/message', payload, authHeaders);
 }
 
 export function evaluateLearnSession(
   payload: EvaluateRequest,
 ): Promise<LearnSessionEvaluateResponse> {
   return postJson<LearnSessionEvaluateResponse>('/api/learn-session/evaluate', payload);
+}
+
+interface EndRequest {
+  chatHistory: import('../types/session').LearnChatMessage[];
+  learningGoal: string;
+  struggledWith: Record<string, number>;
+  selectedLanguage?: import('../types/session').SessionLanguage;
+}
+
+export function endLearnSession(
+  payload: EndRequest,
+  token: string,
+): Promise<LearnSessionEndResponse> {
+  return postJson<LearnSessionEndResponse>(
+    '/api/learn-session/end',
+    payload,
+    { Authorization: `Bearer ${token}` },
+  );
 }
