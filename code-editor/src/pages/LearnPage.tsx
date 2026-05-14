@@ -149,7 +149,7 @@ export function LearnPage() {
               onUsePrompt={handleUsePrompt}
               onSelectFollowUp={handleSelectFollowUp}
               onReset={() => {
-                resetSession();
+                resetSession({ selectedLanguage });
                 setCurrentCode(selectedLanguage.template);
                 setRunResult(null);
               }}
