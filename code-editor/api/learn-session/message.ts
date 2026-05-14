@@ -17,6 +17,8 @@ import {
   validateUrl,
 } from '../../lib/urlFetcher.js';
 import { normalizeFollowUps } from '../../lib/normalizeFollowUps.js';
+import { normalizeDetectedStyle } from '../../lib/normalizeDetectedStyle.js';
+import { createClient } from '@supabase/supabase-js';
 
 type SessionStage =
   | 'idle'
@@ -72,6 +74,11 @@ interface LearnMessageResponse {
   messageType: MessageType;
   learningGoal?: string;
   followUps?: string[];
+  detectedStyle?: string | null;
+}
+
+interface LearnMessageApiResponse extends LearnMessageResponse {
+  memoryWritten: boolean;
 }
 
 interface ResourceContextPayload {
@@ -171,8 +178,14 @@ Output must be valid JSON with this exact shape:
   "nextStage": "idle|clarify|teach|practice|check_in|reflect|challenge",
   "messageType": "chat|clarifying_question|starter_code|feedback|evaluation|challenge",
   "learningGoal": "string optional",
-  "followUps": ["string", "string", "string"]
+  "followUps": ["string", "string", "string"],
+  "detectedStyle": "ELI5|concise|detailed|analogy-heavy|null"
 }
+
+Style detection:
+- Emit detectedStyle only when the student explicitly states a preference for how explanations should be delivered (e.g. "explain like I'm 5", "keep it brief", "give me lots of detail", "use analogies").
+- Valid values: "ELI5", "concise", "detailed", "analogy-heavy".
+- Set detectedStyle to null when no such explicit preference is stated.
 
 Rules:
 - Prefer hints and guiding questions over full answers.
@@ -250,6 +263,8 @@ function normalizeResponse(
 
   const validFollowUps = followUps.length >= 3 ? followUps : [];
 
+  const detectedStyle = normalizeDetectedStyle(parsed.detectedStyle);
+
   return {
     response,
     starterCode,
@@ -257,6 +272,7 @@ function normalizeResponse(
     messageType,
     learningGoal,
     followUps: validFollowUps,
+    detectedStyle,
   };
 }
 
@@ -419,7 +435,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
     }
 
-    return res.status(200).json(normalizeResponse(parsed, stage));
+    const normalized = normalizeResponse(parsed, stage);
+    let memoryWritten = false;
+
+    if (normalized.detectedStyle) {
+      const authHeader = req.headers['authorization'];
+      const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+        ? authHeader.slice(7)
+        : null;
+
+      if (token) {
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (supabaseUrl && supabaseServiceKey) {
+          const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+            auth: { persistSession: false },
+          });
+
+          const { data: { user } } = await supabase.auth.getUser(token);
+
+          if (user) {
+            const { error: upsertError } = await supabase
+              .from('user_memory')
+              .upsert(
+                { user_id: user.id, explanation_style: normalized.detectedStyle },
+                { onConflict: 'user_id' },
+              );
+
+            if (!upsertError) {
+              memoryWritten = true;
+            }
+          }
+        }
+      }
+    }
+
+    const apiResponse: LearnMessageApiResponse = { ...normalized, memoryWritten };
+    return res.status(200).json(apiResponse);
   } catch (error) {
     console.error('learn-session/message error:', error);
 
