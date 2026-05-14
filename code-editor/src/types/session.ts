@@ -80,3 +80,7 @@ export interface LearnSessionEvaluateResponse {
   challengePrompt?: string;
   nextStage: SessionStage;
 }
+
+export interface LearnSessionEndResponse {
+  memoryWritten: boolean;
+}
