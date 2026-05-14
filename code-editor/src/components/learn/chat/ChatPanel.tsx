@@ -28,27 +28,6 @@ interface ChatPanelProps {
   onReset: () => void;
 }
 
-function getStageHint(stage: SessionStage): string {
-  switch (stage) {
-    case "idle":
-      return "Describe what you want to learn in code.";
-    case "clarify":
-      return "Answer the clarifying question so we can generate focused starter code.";
-    case "teach":
-      return "Read the explanation, then modify and run the starter code.";
-    case "practice":
-      return "Keep iterating on your code and ask for targeted guidance.";
-    case "check_in":
-      return "The agent is checking your readiness. Reply whether you feel you understand it yet.";
-    case "reflect":
-      return "Explain back what changed and why it works.";
-    case "challenge":
-      return "Try the mini challenge and ask for feedback if you get stuck.";
-    default:
-      return "";
-  }
-}
-
 export function ChatPanel({
   messages,
   sessionStage,
@@ -80,8 +59,6 @@ export function ChatPanel({
           Reset
         </button>
       </header>
-
-      <p className="learn-chat-panel__hint">{getStageHint(sessionStage)}</p>
 
       <div className="learn-chat-panel__messages">
         {messages.map((message) => (
