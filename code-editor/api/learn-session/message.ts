@@ -166,7 +166,7 @@ Stage behavior:
 - challenge: propose one small challenge aligned with what they just learned.
 
 Follow-up questions:
-- For teach/practice/check_in/challenge stages, generate 3 to 5 concise follow-up questions in followUps.
+- For teach/practice/check_in/challenge stages, generate 2 concise follow-up questions in followUps.
 - Balance breadth and depth across the followUps list.
 - Keep followUps tightly relevant to the current student message and code context.
 - For idle/clarify/reflect stages, return followUps as an empty array.
@@ -195,7 +195,7 @@ Rules:
 - If a Provided Resource section is present, use it as the primary basis for the lesson and extract the most relevant coding concepts.
 - If the Provided Resource says content could not be fetched, ask the student to paste the relevant excerpt before continuing.
 - Prefer JavaScript/TypeScript syntax if language context is unclear.
-- followUps must contain 3 to 5 questions only in teach/practice/check_in/challenge. Otherwise use an empty array.
+- followUps must contain 2 questions only in teach/practice/check_in/challenge. Otherwise use an empty array.
 - Never output Markdown fences around JSON.`;
 }
 

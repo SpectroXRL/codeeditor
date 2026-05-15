@@ -1,4 +1,4 @@
-const MAX_FOLLOW_UPS = 5;
+const MAX_FOLLOW_UPS = 2;
 
 export function normalizeFollowUps(raw: unknown): string[] {
   if (!Array.isArray(raw)) {
