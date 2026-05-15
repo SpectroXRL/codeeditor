@@ -162,3 +162,20 @@ describe('POST /api/learn-session/message — memory injection', () => {
     expect(messages[0].content).not.toContain('Student context from previous sessions');
   });
 });
+
+describe('POST /api/learn-session/message — system prompt stage rules', () => {
+  it('clarify stage prompt tells the AI to advance to teach after one clarifying exchange', async () => {
+    const res = makeRes();
+    await handler(
+      makeReq({ message: 'how do variables work', context: baseContext, sessionStage: 'clarify' }),
+      res,
+    );
+
+    const messages = mockCreate.mock.calls[0][0].messages as Array<{ role: string; content: string }>;
+    const systemContent = messages[0].content;
+    // The clarify bullet itself must contain an explicit exit condition to advance to teach.
+    // Matches the clarify line up to the newline — if "teach" isn't on that same line,
+    // the AI has no signal to ever leave the clarify loop.
+    expect(systemContent).toMatch(/- idle\/clarify:[^\n]*teach/i);
+  });
+});

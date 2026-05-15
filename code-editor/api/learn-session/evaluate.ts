@@ -158,7 +158,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (classification !== 'coding') {
         return res.status(200).json({
           understood: false,
-          feedback: getDomainRefusalMessage(classification),
+          feedback: getDomainRefusalMessage(),
           suggestChallenge: false,
           nextStage: 'practice',
         } satisfies EvaluateResponse);
