@@ -178,7 +178,7 @@ Output must be valid JSON with this exact shape:
   "nextStage": "idle|clarify|teach|practice|check_in|reflect|challenge",
   "messageType": "chat|clarifying_question|starter_code|feedback|evaluation|challenge",
   "learningGoal": "string optional",
-  "followUps": ["string", "string", "string"],
+  "followUps": ["string", "string"],
   "detectedStyle": "ELI5|concise|detailed|analogy-heavy|null"
 }
 
@@ -261,7 +261,7 @@ function normalizeResponse(
     ? normalizeFollowUps(parsed.followUps).slice(0, 5)
     : [];
 
-  const validFollowUps = followUps.length >= 3 ? followUps : [];
+  const validFollowUps = followUps.length >= 2 ? followUps : [];
 
   const detectedStyle = normalizeDetectedStyle(parsed.detectedStyle);
 
