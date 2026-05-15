@@ -164,6 +164,30 @@ describe('POST /api/learn-session/message — memory injection', () => {
   });
 });
 
+describe('POST /api/learn-session/message — clarify loop guard', () => {
+  it('forces nextStage to teach when model returns clarify from an already-clarify session', async () => {
+    mockCreate.mockResolvedValueOnce({
+      choices: [{ message: { content: JSON.stringify({
+        response: 'What type of user input are you looking to store?',
+        nextStage: 'clarify',
+        messageType: 'clarifying_question',
+        followUps: [],
+        detectedStyle: null,
+      }) } }],
+    });
+
+    const res = makeRes();
+    await handler(
+      makeReq({ message: 'store user input', context: baseContext, sessionStage: 'clarify' }),
+      res,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(body.nextStage).toBe('teach');
+  });
+});
+
 describe('POST /api/learn-session/message — system prompt stage rules', () => {
   it('clarify stage prompt tells the AI to advance to teach after one clarifying exchange', async () => {
     const res = makeRes();
