@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const { mockGetUser, mockUpsert, mockSingle, mockCreate } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
@@ -36,7 +37,7 @@ import handler from '../message.js';
 
 let ipCounter = 0;
 
-function makeReq(body: object, authHeader?: string): any {
+function makeReq(body: object, authHeader?: string): VercelRequest {
   ipCounter += 1;
   return {
     method: 'POST',
@@ -45,14 +46,14 @@ function makeReq(body: object, authHeader?: string): any {
       ...(authHeader ? { authorization: `Bearer ${authHeader}` } : {}),
     },
     body,
-  };
+  } as unknown as VercelRequest;
 }
 
-function makeRes(): any {
-  const res: any = {};
-  res.status = vi.fn().mockReturnValue(res);
-  res.json = vi.fn().mockReturnValue(res);
-  return res;
+function makeRes(): VercelResponse {
+  const res = { status: vi.fn(), json: vi.fn() };
+  res.status.mockReturnValue(res);
+  res.json.mockReturnValue(res);
+  return res as unknown as VercelResponse;
 }
 
 const baseContext = {
