@@ -18,6 +18,7 @@ import {
 } from '../../lib/urlFetcher.js';
 import { normalizeFollowUps } from '../../lib/normalizeFollowUps.js';
 import { normalizeDetectedStyle } from '../../lib/normalizeDetectedStyle.js';
+import { buildMemoryParagraph } from '../../lib/buildMemoryParagraph.js';
 import { createClient } from '@supabase/supabase-js';
 
 type SessionStage =
@@ -158,7 +159,7 @@ Mission:
 - Stay within safe coding-learning support.
 
 Stage behavior:
-- idle/clarify: ask one short clarifying question to narrow the goal.
+- idle/clarify: ask one short clarifying question to narrow the goal. After the student gives any substantive answer — even a partial one — set nextStage to "teach" and move on. Never ask more than one clarifying question per exchange.
 - teach: explain quickly and provide tiny starter code the student can edit.
 - practice: inspect student code and give next-step guidance, not full solutions. After 2-3 turns of clear progress, ask a readiness check by setting nextStage to check_in.
 - check_in: ask if the student feels they understand it. If they say yes, set nextStage to reflect. If they say no or ask for more help, set nextStage to practice.
@@ -329,7 +330,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const classification = classifyDomain(validation.sanitized);
     if (classification !== 'coding') {
       return res.status(200).json({
-        response: getDomainRefusalMessage(classification),
+        response: getDomainRefusalMessage(),
         nextStage: stage,
         messageType: 'refusal',
         followUps: [],
@@ -397,9 +398,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    let systemPromptContent = buildSystemPrompt(stage);
+
+    if (stage === 'idle') {
+      const authHeader = req.headers['authorization'];
+      const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+        ? authHeader.slice(7)
+        : null;
+
+      if (token) {
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (supabaseUrl && supabaseServiceKey) {
+          const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+            auth: { persistSession: false },
+          });
+
+          const { data: { user } } = await supabase.auth.getUser(token);
+
+          if (user) {
+            const { data: memoryRow } = await supabase
+              .from('user_memory')
+              .select('preferred_language, explanation_style, topics_explored, struggled_with, last_session_summary')
+              .eq('user_id', user.id)
+              .single();
+
+            if (memoryRow) {
+              const paragraph = buildMemoryParagraph(memoryRow);
+              if (paragraph) {
+                systemPromptContent = `Student context from previous sessions:\n${paragraph}\n\n${systemPromptContent}`;
+              }
+            }
+          }
+        }
+      }
+    }
+
     const openai = new OpenAI({ apiKey });
     const baseMessages = [
-      { role: 'system' as const, content: buildSystemPrompt(stage) },
+      { role: 'system' as const, content: systemPromptContent },
       {
         role: 'user' as const,
         content: buildContextMessage(

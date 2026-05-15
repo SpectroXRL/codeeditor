@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const { mockGetUser, mockUpsert, mockSingle, mockCreate } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
@@ -36,7 +37,7 @@ import handler from '../message.js';
 
 let ipCounter = 0;
 
-function makeReq(body: object, authHeader?: string): any {
+function makeReq(body: object, authHeader?: string): VercelRequest {
   ipCounter += 1;
   return {
     method: 'POST',
@@ -45,14 +46,14 @@ function makeReq(body: object, authHeader?: string): any {
       ...(authHeader ? { authorization: `Bearer ${authHeader}` } : {}),
     },
     body,
-  };
+  } as unknown as VercelRequest;
 }
 
-function makeRes(): any {
-  const res: any = {};
-  res.status = vi.fn().mockReturnValue(res);
-  res.json = vi.fn().mockReturnValue(res);
-  return res;
+function makeRes(): VercelResponse {
+  const res = { status: vi.fn(), json: vi.fn() };
+  res.status.mockReturnValue(res);
+  res.json.mockReturnValue(res);
+  return res as unknown as VercelResponse;
 }
 
 const baseContext = {
@@ -160,5 +161,22 @@ describe('POST /api/learn-session/message — memory injection', () => {
     expect(mockSingle).not.toHaveBeenCalled();
     const messages = mockCreate.mock.calls[0][0].messages as Array<{ role: string; content: string }>;
     expect(messages[0].content).not.toContain('Student context from previous sessions');
+  });
+});
+
+describe('POST /api/learn-session/message — system prompt stage rules', () => {
+  it('clarify stage prompt tells the AI to advance to teach after one clarifying exchange', async () => {
+    const res = makeRes();
+    await handler(
+      makeReq({ message: 'how do variables work', context: baseContext, sessionStage: 'clarify' }),
+      res,
+    );
+
+    const messages = mockCreate.mock.calls[0][0].messages as Array<{ role: string; content: string }>;
+    const systemContent = messages[0].content;
+    // The clarify bullet itself must contain an explicit exit condition to advance to teach.
+    // Matches the clarify line up to the newline — if "teach" isn't on that same line,
+    // the AI has no signal to ever leave the clarify loop.
+    expect(systemContent).toMatch(/- idle\/clarify:[^\n]*teach/i);
   });
 });
