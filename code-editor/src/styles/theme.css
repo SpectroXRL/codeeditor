@@ -53,6 +53,7 @@
   /* Alias kept for legacy components; prefer --border in new styles */
   --border-color: var(--border);
   --bg-hover: #3d4349;
+  --bg-item-hover: #495057;
   --text-tertiary: #868e96;
   --accent-bg: rgba(0, 120, 212, 0.15);
 }
@@ -104,6 +105,7 @@
   /* Alias kept for legacy components; prefer --border in new styles */
   --border-color: var(--border);
   --bg-hover: #f3f4f6;
+  --bg-item-hover: #f3f4f6;
   --text-tertiary: #9ca3af;
   --accent-bg: rgba(0, 120, 212, 0.1);
 }
