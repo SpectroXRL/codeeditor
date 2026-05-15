@@ -243,10 +243,15 @@ function normalizeResponse(
       ? parsed.nextStage
       : nextDefaultStage(stage);
 
+  // Guard: the clarify stage may only fire once. If the model tries to loop back
+  // into clarify from an already-clarify session, force the transition to teach.
+  const effectiveNextStage: SessionStage =
+    stage === 'clarify' && parsedStage === 'clarify' ? 'teach' : parsedStage;
+
   const messageType =
     typeof parsed.messageType === 'string'
       ? (parsed.messageType as MessageType)
-      : defaultMessageType(parsedStage);
+      : defaultMessageType(effectiveNextStage);
 
   const learningGoal =
     typeof parsed.learningGoal === 'string' && parsed.learningGoal.trim()
@@ -258,7 +263,7 @@ function normalizeResponse(
       ? parsed.starterCode
       : undefined;
 
-  const followUps = FOLLOW_UP_STAGES.includes(parsedStage)
+  const followUps = FOLLOW_UP_STAGES.includes(effectiveNextStage)
     ? normalizeFollowUps(parsed.followUps).slice(0, 5)
     : [];
 
@@ -269,7 +274,7 @@ function normalizeResponse(
   return {
     response,
     starterCode,
-    nextStage: parsedStage,
+    nextStage: effectiveNextStage,
     messageType,
     learningGoal,
     followUps: validFollowUps,
