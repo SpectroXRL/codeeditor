@@ -37,4 +37,5 @@ jobs:
           cache-dependency-path: atlas-learn.client/package-lock.json
       - run: npm ci
       - run: npx tsc -p tsconfig.app.json
+      - run: npm test
       - run: npm run lint
