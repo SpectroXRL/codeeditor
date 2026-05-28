@@ -1,18 +1,18 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 type Props = {
-  onSubmit: (message: string) => void
-}
+  onSubmit: (message: string) => void;
+};
 
 export function ChatInput({ onSubmit }: Props) {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('');
 
   const handleSubmit = () => {
-    const trimmed = value.trim()
-    if (!trimmed) return
-    onSubmit(trimmed)
-    setValue('')
-  }
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    onSubmit(trimmed);
+    setValue('');
+  };
 
   return (
     <div>
@@ -31,5 +31,5 @@ export function ChatInput({ onSubmit }: Props) {
         Send
       </button>
     </div>
-  )
+  );
 }
