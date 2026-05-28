@@ -1,0 +1,40 @@
+name: CodeEditor CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-api:
+    name: API – unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: atlas-learn.api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: atlas-learn.api/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  test-client:
+    name: Client – type-check & lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: atlas-learn.client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: atlas-learn.client/package-lock.json
+      - run: npm ci
+      - run: npx tsc -p tsconfig.app.json
+      - run: npm run lint
