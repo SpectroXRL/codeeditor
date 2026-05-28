@@ -1,2 +1,6 @@
 .vercel
 .env*.local
+AGENTS.md
+CONTEXT.md
+.scratch
+docs
