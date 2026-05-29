@@ -2,9 +2,10 @@ import { useState } from 'react';
 
 type Props = {
   onSubmit: (message: string) => void;
+  isLoading?: boolean;
 };
 
-export function ChatInput({ onSubmit }: Props) {
+export function ChatInput({ onSubmit, isLoading }: Props) {
   const [value, setValue] = useState('');
 
   const handleSubmit = () => {
@@ -25,7 +26,7 @@ export function ChatInput({ onSubmit }: Props) {
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={value.trim() === ''}
+        disabled={value.trim() === '' || isLoading}
         aria-label="Send"
       >
         Send

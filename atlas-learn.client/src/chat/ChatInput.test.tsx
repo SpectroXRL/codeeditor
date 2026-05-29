@@ -23,4 +23,10 @@ describe('ChatInput', () => {
     expect(onSubmit).toHaveBeenCalledWith('hello world');
     expect(input).toHaveValue('');
   });
+
+  it('disables the send button while isLoading is true even with input', async () => {
+    render(<ChatInput onSubmit={() => {}} isLoading />);
+    await userEvent.type(screen.getByRole('textbox'), 'hello');
+    expect(screen.getByRole('button', { name: /send/i })).toBeDisabled();
+  });
 });
