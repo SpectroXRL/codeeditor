@@ -17,7 +17,8 @@ describe('ChatController (POST /chat)', () => {
   beforeEach(async () => {
     mockOpenAiClient.responses.create.mockResolvedValue({
       id: 'resp_abc123',
-      output_text: 'A closure is a function that captures its lexical scope.',
+      output_text:
+        '{"tool":"chat","content":"A closure is a function that captures its lexical scope."}',
     });
 
     const module: TestingModule = await Test.createTestingModule({
