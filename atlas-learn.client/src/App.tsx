@@ -1,43 +1,27 @@
-import { useState } from 'react'
 import { ChatInput } from './chat/ChatInput'
 import { ChatMessage } from './chat/ChatMessage'
-import type { ToolResponse } from './types/chat.types'
-
-type UserEntry = { role: 'user'; content: string }
-type Message = UserEntry | ToolResponse
+import { useChatState } from './chat/useChatState'
+import { postChat } from './api/chat'
 
 function App() {
-  const [messages, setMessages] = useState<Message[]>([])
-
-  const handleSubmit = (content: string) => {
-    const userEntry: UserEntry = { role: 'user', content }
-    const assistantReply: ToolResponse = {
-      tool: 'chat',
-      content: "I'm still learning!",
-      conversationId: crypto.randomUUID(),
-    }
-    setMessages((prev) => [...prev, userEntry, assistantReply])
-  }
-
-  const handleNewConversation = () => {
-    setMessages([])
-  }
+  const { displayList, isLoading, error, send, reset } = useChatState(postChat)
 
   return (
     <div>
-      <button type="button" onClick={handleNewConversation}>
+      <button type="button" onClick={reset}>
         New Conversation
       </button>
-      {messages.length > 0 && (
+      {displayList.length > 0 && (
         <ul aria-label="Conversation">
-          {messages.map((message, index) => (
+          {displayList.map((message, index) => (
             <li key={index}>
               <ChatMessage message={message} />
             </li>
           ))}
         </ul>
       )}
-      <ChatInput onSubmit={handleSubmit} />
+      {error && <p role="alert">{error.message}</p>}
+      <ChatInput onSubmit={send} isLoading={isLoading} />
     </div>
   )
 }
