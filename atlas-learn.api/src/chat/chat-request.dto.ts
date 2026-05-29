@@ -4,7 +4,7 @@ export class ChatRequestDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/\S/, { message: 'message must not be blank' })
-  message: string;
+  message!: string;
 
   @IsOptional()
   @IsString()
