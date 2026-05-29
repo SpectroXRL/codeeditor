@@ -3,3 +3,13 @@ export type ToolResponse = {
   content: string
   conversationId: string
 }
+
+export type ChatRequest = {
+  message: string
+  conversationId?: string
+}
+
+export type ErrorResponse = {
+  error: 'transport' | 'schema' | 'domain'
+  message: string
+}
