@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import styles from './ChatInput.module.css';
 
 type Props = {
   onSubmit: (message: string) => void;
@@ -16,12 +17,13 @@ export function ChatInput({ onSubmit, isLoading }: Props) {
   };
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         aria-label="Message"
+        placeholder="Ask a question…"
       />
       <button
         type="button"
