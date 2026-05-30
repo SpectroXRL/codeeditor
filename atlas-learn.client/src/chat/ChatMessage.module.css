@@ -1,0 +1,19 @@
+.userMessage {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  max-width: 75%;
+  line-height: 1.5;
+}
+
+.assistantMessage {
+  align-self: flex-start;
+  background: var(--bg-secondary);
+  color: var(--text-h);
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  max-width: 75%;
+  line-height: 1.5;
+}
